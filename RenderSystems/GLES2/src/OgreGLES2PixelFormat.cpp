@@ -147,11 +147,8 @@ namespace Ogre {
             case PF_A2R10G10B10:
             case PF_A2B10G10R10:
             case PF_SHORT_RGBA:
-#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE_IOS && OGRE_NO_GLES3_SUPPORT == 1
-                return GL_BGRA_EXT;
-#else
                 return GL_RGBA;
-#endif
+
 #ifdef GL_EXT_texture_compression_dxt1
             case PF_DXT1:
                 return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
