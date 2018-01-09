@@ -70,6 +70,7 @@ namespace Ogre {
 
         int mLastViewportWidth, mLastViewportHeight;
         OrientationMode mLastViewportOrientationMode;
+        Real mPixelRatio;
 
         bool parseChildren( DataStreamPtr& chunk, const String& line,
             Overlay* pOverlay, bool isTemplate, OverlayContainer* parent = NULL);
@@ -142,6 +143,10 @@ namespace Ogre {
 
         /** Gets the orientation mode of the destination viewport. */
         OrientationMode getViewportOrientationMode(void) const;
+
+       /** Gets the pixel ratio: how many viewport pixels represent a single overlay pixel (in one dimension). */
+       Real getPixelRatio(void) const;
+       void setPixelRatio(Real ratio); 
 
         /** Creates a new OverlayElement of the type requested.
         @remarks
