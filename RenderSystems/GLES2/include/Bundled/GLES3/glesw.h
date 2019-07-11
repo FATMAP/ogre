@@ -31,10 +31,10 @@
 #ifndef __glesw_h_
 #define __glesw_h_
 
-#include <GLES3/gl3.h>
-#include <KHR/khrplatform.h>
-#include <GLES3/gl3platform.h>
-#include <GLES2/gl2ext.h>
+#include <Bundled/GLES3/gl3.h>
+#include <Bundled/KHR/khrplatform.h>
+#include <Bundled/GLES3/gl3platform.h>
+#include <Bundled/GLES2/gl2ext.h>
 
 #ifdef __cplusplus
 extern "C" {
