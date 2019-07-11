@@ -18,9 +18,14 @@ file(GLOB GLSLES_FILES "src/GLSLES/include/*.h" "src/GLSLES/src/*.cpp")
 list(REMOVE_ITEM GLSLES_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/GLSLES/src/OgreGLSLESCgProgram.cpp")
 list(REMOVE_ITEM GLSLES_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/GLSLES/src/OgreGLSLESCgProgramFactory.cpp")
 
-set(GLESW_HEADER_INSTALL "GLES3")
-file(GLOB GLESW_HEADERS "include/GLES3/*.h")
-file(GLOB KHR_HEADERS "include/KHR/*.h")
+set(GLESW_HEADER_INSTALL "Bundled/GLES3")
+file(GLOB GLESW_HEADERS "include/Bundled/GLES3/*.h")
+
+set(KHR_HEADER_INSTALL "Bundled/KHR")
+file(GLOB KHR_HEADERS "include/Bundled/KHR/*.h")
+
+set(GLES2_HEADER_INSTALL "Bundled/GLES2")
+file(GLOB GLES2_HEADERS "include/Bundled/GLES2/*.h")
 
 if(OGRE_CONFIG_ENABLE_GL_STATE_CACHE_SUPPORT)
   set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/OgreGLES2StateCacheManager.cpp 
@@ -57,6 +62,7 @@ endif ()
 include_directories(
   ${GLSUPPORT_INCLUDE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/Bundled
   ${CMAKE_CURRENT_SOURCE_DIR}/include/EAGL
   ${CMAKE_CURRENT_SOURCE_DIR}/src/GLSLES/include
   ${OPENGLES3_INCLUDE_DIR} ${OPENGLES2_INCLUDE_DIR} ${EGL_INCLUDE_DIR}
@@ -78,8 +84,8 @@ endif ()
 ogre_config_plugin(RenderSystem_GLES2)
 
 install(FILES ${HEADER_FILES} ${GLSUPPORT_HEADERS} DESTINATION include/OGRE/RenderSystems/GLES2)
-install(FILES "include/GLES2/gl2ext.h" DESTINATION include/OGRE/RenderSystems/GLES2/GLES2)
+install(FILES ${GLES2_HEADERS} DESTINATION include/OGRE/RenderSystems/GLES2/${GLES2_HEADER_INSTALL})
 install(FILES ${GLESW_HEADERS} DESTINATION include/OGRE/RenderSystems/GLES2/${GLESW_HEADER_INSTALL})
-install(FILES ${KHR_HEADERS} DESTINATION include/OGRE/RenderSystems/GLES2/KHR)
+install(FILES ${KHR_HEADERS} DESTINATION include/OGRE/RenderSystems/GLES2/${KHR_HEADER_INSTALL})
 install(FILES ${PLATFORM_HEADERS} DESTINATION include/OGRE/RenderSystems/GLES2/${PLATFORM_HEADER_INSTALL})
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/GLSLES/include/ DESTINATION include/OGRE/RenderSystems/GLES2/GLSLES)
