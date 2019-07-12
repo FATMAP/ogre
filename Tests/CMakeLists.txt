@@ -164,7 +164,7 @@ if (OGRE_BUILD_TESTS)
     endif()
     
     if(ANDROID)
-        list(APPEND SOURCE_FILES ${ANDROID_NDK}/sources/android/cpufeatures/cpu-features.c)
+        list(APPEND SOURCE_FILES ${OGRE_ANDROID_NDK_SOURCES_DIR}/cpufeatures/cpu-features.c)
         list(APPEND OGRE_LIBRARIES EGL log android)
         add_definitions(-Wl,-pie)
     endif()
