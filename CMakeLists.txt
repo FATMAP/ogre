@@ -276,6 +276,26 @@ elseif (ANDROID)
   set(OGRE_BUILD_TOOLS FALSE CACHE BOOL "Disable tools on Android" FORCE)
   set(OGRE_STATIC TRUE CACHE BOOL "Forcing static build for Android" FORCE)
   string (REPLACE "-msse" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+
+
+  # When using standalone toolchain, then ANDROID_NDK can be empty, and standalone toolchain does not
+  # has any references to that folder. That is why separate parameter is required
+  set(OGRE_ANDROID_NDK_SOURCES_DIR "" CACHE PATH "Path to Android NDK 'sources/android' directory. Useful, when building with standalone toolchain.")
+
+  # Initialize Android NDK 'sources' directory, which is a part of Android NDK. If Android NDK is used,
+  # the you don't need to specify 'sources' folder explicitly: we can get it from ANDROID_NDK variable.
+  if ("${OGRE_ANDROID_NDK_SOURCES_DIR}" STREQUAL "")
+    if ("${ANDROID_NDK}" STREQUAL "")
+      message (FATAL_ERROR "Unable to initialize Android NDK 'sources/android' folder. Please set it with 'OGRE_ANDROID_NDK_SOURCES_DIR' parameter or provide path to Android NDK via 'ANDROID_NDK'")
+    endif()
+    set (OGRE_ANDROID_NDK_SOURCES_DIR ${ANDROID_NDK}/sources/android)
+  endif()
+
+  # Check, if directory is valid. Better now, than solve compile issues
+  if (NOT IS_DIRECTORY "${OGRE_ANDROID_NDK_SOURCES_DIR}")
+    message (FATAL_ERROR "Invalid path to Android NDK 'sources/android' directory: ${OGRE_ANDROID_NDK_SOURCES_DIR}. Please check 'OGRE_ANDROID_NDK_SOURCES_DIR' and 'ANDROID_NDK' values.")
+  endif()
+
 elseif(EMSCRIPTEN)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-c++11-extensions")
   add_definitions(-DEMSCRIPTEN=1 -D__EMSCRIPTEN__=1)
