@@ -84,7 +84,7 @@ namespace Ogre {
     void AndroidEGLWindow::windowMovedOrResized()
     {
         if(mActive)
-        {		
+        {
             // When using GPU rendering for Android UI the os creates a context in the main thread
             // Now we have 2 choices create OGRE in its own thread or set our context current before doing
             // anything else. I put this code here because this function called before any rendering is done.
