@@ -92,10 +92,10 @@ namespace Ogre {
             // to query the correct dimensions.
             mContext->setCurrent();
 
-            int nwidth = (int)((float)ANativeWindow_getWidth(mWindow) * mScale);
-            int nheight = (int)((float)ANativeWindow_getHeight(mWindow) * mScale);
+            int nwidth = (int)ANativeWindow_getWidth(mWindow);
+            int nheight = (int)ANativeWindow_getHeight(mWindow);
 
-            if(mScale != 1.0f && (nwidth != int(mWidth) || nheight != int(mHeight)))
+            if((nwidth != int(mWidth) || nheight != int(mHeight)))
             {
                 // update buffer geometry
                 EGLint format;
