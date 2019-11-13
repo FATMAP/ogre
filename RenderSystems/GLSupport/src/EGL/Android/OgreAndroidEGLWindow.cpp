@@ -92,21 +92,21 @@ namespace Ogre {
             // to query the correct dimensions.
             mContext->setCurrent();
 
-            int nwidth = (int)ANativeWindow_getWidth(mWindow);
-            int nheight = (int)ANativeWindow_getHeight(mWindow);
+            int32_t windowWidth = ANativeWindow_getWidth(mWindow);
+            int32_t windowHeight = ANativeWindow_getHeight(mWindow);
 
-            if((nwidth != int(mWidth) || nheight != int(mHeight)))
+            if((windowWidth != (int32_t)mWidth) || (windowHeight != (int32_t)mHeight))
             {
                 // update buffer geometry
                 EGLint format;
                 eglGetConfigAttrib(mEglDisplay, mEglConfig, EGL_NATIVE_VISUAL_ID, &format);
                 EGL_CHECK_ERROR
 
-                ANativeWindow_setBuffersGeometry(mWindow, nwidth, nheight, format);
+                ANativeWindow_setBuffersGeometry(mWindow, windowWidth, windowHeight, format);
             }
 
-            mWidth = nwidth;
-            mHeight = nheight;
+            mWidth = (uint32)windowWidth;
+            mHeight = (uint32)windowHeight;
 
             // Notify viewports of resize
             ViewportList::iterator it = mViewportList.begin();
