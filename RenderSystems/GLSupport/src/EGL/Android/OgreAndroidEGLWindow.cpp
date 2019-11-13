@@ -77,21 +77,37 @@ namespace Ogre {
 
     void AndroidEGLWindow::resize(uint width, uint height)
     {
+        // cannot do this - query size instead
+        windowMovedOrResized();
     }
 
     void AndroidEGLWindow::windowMovedOrResized()
     {
         if(mActive)
-        {		
+        {
             // When using GPU rendering for Android UI the os creates a context in the main thread
             // Now we have 2 choices create OGRE in its own thread or set our context current before doing
             // anything else. I put this code here because this function called before any rendering is done.
             // Because the events for screen rotation / resizing did not worked on all devices it is the best way
             // to query the correct dimensions.
-            mContext->setCurrent(); 
-            eglQuerySurface(mEglDisplay, mEglSurface, EGL_WIDTH, (EGLint*)&mWidth);
-            eglQuerySurface(mEglDisplay, mEglSurface, EGL_HEIGHT, (EGLint*)&mHeight);
-            
+            mContext->setCurrent();
+
+            int32_t windowWidth = ANativeWindow_getWidth(mWindow);
+            int32_t windowHeight = ANativeWindow_getHeight(mWindow);
+
+            if((windowWidth != (int32_t)mWidth) || (windowHeight != (int32_t)mHeight))
+            {
+                // update buffer geometry
+                EGLint format;
+                eglGetConfigAttrib(mEglDisplay, mEglConfig, EGL_NATIVE_VISUAL_ID, &format);
+                EGL_CHECK_ERROR
+
+                ANativeWindow_setBuffersGeometry(mWindow, windowWidth, windowHeight, format);
+            }
+
+            mWidth = (uint32)windowWidth;
+            mHeight = (uint32)windowHeight;
+
             // Notify viewports of resize
             ViewportList::iterator it = mViewportList.begin();
             while( it != mViewportList.end() )
