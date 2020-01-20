@@ -42,6 +42,16 @@ THE SOFTWARE.
 #include "ARCMacros.h"
 
 namespace Ogre {
+
+    struct EAGLContextGuard
+    {
+        EAGLContextGuard(EAGLContext* ctx) : mPrevContext([EAGLContext currentContext]) { if(ctx != mPrevContext) [EAGLContext setCurrentContext:ctx]; }
+        ~EAGLContextGuard() { [EAGLContext setCurrentContext:mPrevContext]; }
+    private:
+         EAGLContext *mPrevContext;
+    };
+
+
     EAGL2Window::EAGL2Window(EAGL2Support *glsupport)
         :   mClosed(false),
             mVisible(false),
@@ -124,7 +134,9 @@ namespace Ogre {
         if(mWidth == widthPx && mHeight == heightPx)
             return;
         
-        // Destroy and recreate the framebuffer with new dimensions 
+        // Destroy and recreate the framebuffer with new dimensions
+        EAGLContextGuard ctx_guard(mContext->getContext());
+        
         mContext->destroyFramebuffer();
         
         mWidth = widthPx;
@@ -140,11 +152,24 @@ namespace Ogre {
     
 	void EAGL2Window::windowMovedOrResized()
 	{
-		CGRect frame = [mView frame];
-        mWidth = _getPixelFromPoint(frame.size.width);
-        mHeight = _getPixelFromPoint(frame.size.height);
-        mLeft = _getPixelFromPoint(frame.origin.x);
-        mTop = _getPixelFromPoint(frame.origin.y + frame.size.height);
+        CGRect frame = [mView frame];
+        CGFloat width  = _getPixelFromPoint(frame.size.width);
+        CGFloat height = _getPixelFromPoint(frame.size.height);
+        CGFloat left   = _getPixelFromPoint(frame.origin.x);
+        CGFloat top    = _getPixelFromPoint(frame.origin.y);
+        
+        if(mWidth == width && mHeight == height && mLeft == left && mTop == top)
+            return;
+        
+        EAGLContextGuard ctx_guard(mContext->getContext());
+        mContext->destroyFramebuffer();
+
+        mWidth  = width;
+        mHeight = height;
+        mLeft   = left;
+        mTop    = top;
+
+        mContext->createFramebuffer();
 
         for (ViewportList::iterator it = mViewportList.begin(); it != mViewportList.end(); ++it)
         {
