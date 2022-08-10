@@ -209,6 +209,8 @@ endif ()
 # RenderSystem dependencies
 #######################################################################
 
+set(OpenGL_GL_PREFERENCE GLVND)
+
 # Find OpenGL
 if(NOT ANDROID AND NOT EMSCRIPTEN)
   find_package(OpenGL)
