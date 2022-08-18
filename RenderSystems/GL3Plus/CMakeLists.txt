@@ -32,6 +32,10 @@ if(NOT APPLE)
   )
 endif()
 
+if(OGRE_GLSUPPORT_USE_EGL)
+  add_definitions(-DGL3W_UNIX_EGL_LINKED)  # This one is only used in gl3w.c, not in headers.
+endif()
+
 if(OGRE_CONFIG_ENABLE_GL_STATE_CACHE_SUPPORT)
   set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/OgreGL3PlusStateCacheManager.cpp 
     PROPERTIES COMPILE_DEFINITIONS OGRE_ENABLE_STATE_CACHE)

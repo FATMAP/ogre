@@ -87,7 +87,26 @@ static GL3WglProc get_proc(const char *proc)
 	CFRelease(procname);
 	return res;
 }
+
+#elif defined(GL3W_UNIX_EGL_LINKED)
+
+#include <EGL/egl.h>
+
+static void open_libgl(void)
+{
+}
+
+static void close_libgl(void)
+{
+}
+
+static GL3WglProc get_proc(const char *proc)
+{
+	return (GL3WglProc)eglGetProcAddress(proc);
+}
+
 #else
+
 #include <dlfcn.h>
 #include <GL/glx.h>
 
