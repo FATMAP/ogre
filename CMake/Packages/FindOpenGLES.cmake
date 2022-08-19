@@ -60,7 +60,7 @@ ELSE (WIN32)
     # Feel free to tighten up these conditions if you don't 
     # think this is always true.
 
-    IF (OPENGLES_gl_LIBRARY)
+    IF (OPENGLES_gl_LIBRARY AND NOT OGRE_GLSUPPORT_USE_EGL_HEADLESS)
       IF(NOT X11_FOUND)
         INCLUDE(FindX11)
       ENDIF(NOT X11_FOUND)

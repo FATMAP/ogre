@@ -143,4 +143,6 @@ WARNING: Disabling this will make the samples unusable.
 
 #cmakedefine RTSHADER_SYSTEM_BUILD_EXT_SHADERS
 
+#cmakedefine01 OGRE_GLSUPPORT_USE_EGL_HEADLESS
+
 #endif

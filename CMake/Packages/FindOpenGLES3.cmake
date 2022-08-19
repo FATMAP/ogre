@@ -125,7 +125,7 @@ ELSE (WIN32)
     # think this is always true.
     # It's not true on OSX.
 
-    IF (OPENGLES3_gl_LIBRARY)
+    IF (OPENGLES3_gl_LIBRARY AND NOT OGRE_GLSUPPORT_USE_EGL_HEADLESS)
       IF(NOT X11_FOUND)
         INCLUDE(FindX11)
       ENDIF(NOT X11_FOUND)

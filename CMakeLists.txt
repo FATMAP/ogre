@@ -361,6 +361,23 @@ if(OGRE_BUILD_RENDERSYSTEM_GL3PLUS)
   set(OGRE_CONFIG_ENABLE_ETC TRUE CACHE BOOL "Forcing ETC codec for OpenGL 3+" FORCE)
 endif()
 
+
+# The reason we've moved those options from RenderSystems/GLSupport to here is that
+# some other places in the code now depend on them for things like whether to use
+# X11/GLX/etc stuff.
+option(OGRE_GLSUPPORT_USE_EGL "Use EGL for GL Context Creation instead of GLX/ WGL" FALSE)
+option(OGRE_GLSUPPORT_USE_EGL_HEADLESS "Use EGL in headless mode only (Unix-only feature)" FALSE)
+
+if(OGRE_GLSUPPORT_USE_EGL_HEADLESS)
+  if(NOT OGRE_GLSUPPORT_USE_EGL)
+    message(FATAL_ERROR "OGRE_GLSUPPORT_USE_EGL_HEADLESS requires OGRE_GLSUPPORT_USE_EGL")
+  endif()
+
+  if(NOT UNIX)
+    message(FATAL_ERROR "OGRE_GLSUPPORT_USE_EGL_HEADLESS is a Unix-only feature for now")
+  endif()
+endif()
+
 # Find dependencies
 include(Dependencies)
 

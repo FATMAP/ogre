@@ -9,10 +9,6 @@
 
 # Configure OpenGL Support build
 
-# Add platform specific settings
-
-option(OGRE_GLSUPPORT_USE_EGL "use EGL for GL Context Creation instead of GLX/ WGL" FALSE)
-
 if(ANDROID)
   file(GLOB PLATFORM_HEADERS "include/EGL/Android/*.h" "include/EGL/*.h")
   file(GLOB PLATFORM_SOURCES "src/EGL/Android/*.cpp" "src/EGL/*.cpp")
@@ -57,7 +53,15 @@ elseif (APPLE)
     ${OGRE_SOURCE_DIR}/OgreMain/include/OSX)
   set(PLATFORM_LIBS ${Cocoa_LIBRARY_FWK})
 elseif (UNIX)
-  if(OGRE_GLSUPPORT_USE_EGL)
+  if(OGRE_GLSUPPORT_USE_EGL_HEADLESS)
+    file(GLOB PLATFORM_HEADERS "include/EGL/Headless/*.h" "include/EGL/*.h")
+    file(GLOB PLATFORM_SOURCES "src/EGL/Headless/*.cpp" "src/EGL/*.cpp")
+
+    set(NATIVE_INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/EGL
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/EGL/Headless)
+    set(PLATFORM_LIBS ${EGL_LIBRARIES})
+  elseif(OGRE_GLSUPPORT_USE_EGL)
     file(GLOB PLATFORM_HEADERS "include/EGL/X11/*.h" "include/EGL/*.h")
     file(GLOB PLATFORM_SOURCES "src/EGL/X11/*.cpp" "src/EGL/*.cpp")
     

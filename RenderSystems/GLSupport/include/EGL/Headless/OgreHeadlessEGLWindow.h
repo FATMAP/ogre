@@ -27,44 +27,46 @@ THE SOFTWARE.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __EGLContext_H__
-#define __EGLContext_H__
+#ifndef __HeadlessEGLWindow_H__
+#define __HeadlessEGLWindow_H__
 
-#include "OgreGLContext.h"
-#include <EGL/egl.h>
+#include "OgreEGLWindow.h"
+#include "OgreHeadlessEGLSupport.h"
 
 namespace Ogre {
-    class EGLSupport;
-
-    class _OgrePrivate EGLContext : public GLContext
+    class _OgrePrivate HeadlessEGLWindow : public EGLWindow
     {
-        protected:
-            ::EGLConfig    mConfig;
-            const EGLSupport*    mGLSupport;
-            ::EGLSurface   mDrawable;
-            ::EGLContext   mContext;
-            EGLDisplay mEglDisplay;
+    protected:
+        HeadlessEGLSupport* mGLSupport;
 
-        public:
-            EGLContext(EGLDisplay eglDisplay, const EGLSupport* glsupport, ::EGLConfig fbconfig, ::EGLSurface drawable);
+        virtual void getLeftAndTopFromNativeWindow(int & left, int & top, uint width, uint height);
+        virtual void initNativeCreatedWindow(const NameValuePairList *miscParams);
+        virtual void createNativeWindow( int &left, int &top, uint &width, uint &height, String &title );
+        virtual void reposition(int left, int top);
+        virtual void resize(unsigned int width, unsigned int height);
+        virtual void windowMovedOrResized();
+        virtual void switchFullScreen(bool fullscreen);
 
-            ~EGLContext();
 
-            void _createInternalResources(EGLDisplay eglDisplay, ::EGLConfig glconfig, ::EGLSurface drawable, ::EGLContext shareContext);
-            void _destroyInternalResources();
-        
-            void _updateInternalResources(EGLDisplay eglDisplay, ::EGLConfig glconfig, ::EGLSurface drawable);
+    public:
+        HeadlessEGLWindow(HeadlessEGLSupport* glsupport);
+        virtual ~HeadlessEGLWindow();
 
-            void setCurrent();
-            void endCurrent();
+        /**
+         * For now, just delegates to EGLWindow::getCustomAttribute().
+         *
+         * If such a need arises, we may support a query for mEglSurface here.
+         */
+        virtual void getCustomAttribute(const String& name, void* pData);
 
-            GLContext* clone() const {
-                return new EGLContext(mEglDisplay, mGLSupport, mConfig, mDrawable);
-            }
+        virtual void setFullscreen (bool fullscreen, uint width, uint height);
 
-            EGLSurface getDrawable() const;
+        void create(const String& name, unsigned int width, unsigned int height,
+                    bool fullScreen, const NameValuePairList *miscParams);
+
+    private:
+        ::EGLSurface createPBufferSurface(unsigned& width, unsigned& height) const;
     };
 }
 
 #endif
-

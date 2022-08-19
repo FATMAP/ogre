@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2008 Renato Araujo Oliveira Filho <renatox@gmail.com>
@@ -27,44 +27,28 @@ THE SOFTWARE.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __EGLContext_H__
-#define __EGLContext_H__
+#ifndef __HeadlessEGLSupport_H__
+#define __HeadlessEGLSupport_H__
 
-#include "OgreGLContext.h"
-#include <EGL/egl.h>
+
+#include "OgreEGLSupport.h"
 
 namespace Ogre {
-    class EGLSupport;
-
-    class _OgrePrivate EGLContext : public GLContext
+    class _OgrePrivate HeadlessEGLSupport : public EGLSupport
     {
-        protected:
-            ::EGLConfig    mConfig;
-            const EGLSupport*    mGLSupport;
-            ::EGLSurface   mDrawable;
-            ::EGLContext   mContext;
-            EGLDisplay mEglDisplay;
-
         public:
-            EGLContext(EGLDisplay eglDisplay, const EGLSupport* glsupport, ::EGLConfig fbconfig, ::EGLSurface drawable);
+            HeadlessEGLSupport(int profile);
+            virtual ~HeadlessEGLSupport();
 
-            ~EGLContext();
+            virtual void switchMode(uint& width, uint& height, short& frequency);
 
-            void _createInternalResources(EGLDisplay eglDisplay, ::EGLConfig glconfig, ::EGLSurface drawable, ::EGLContext shareContext);
-            void _destroyInternalResources();
-        
-            void _updateInternalResources(EGLDisplay eglDisplay, ::EGLConfig glconfig, ::EGLSurface drawable);
+            NativeDisplayType getNativeDisplay() { return mNativeDisplay; }
 
-            void setCurrent();
-            void endCurrent();
-
-            GLContext* clone() const {
-                return new EGLContext(mEglDisplay, mGLSupport, mConfig, mDrawable);
-            }
-
-            EGLSurface getDrawable() const;
+            RenderWindow* newWindow(const String& name,
+                                    unsigned int width, unsigned int height,
+                                    bool fullScreen,
+                                    const NameValuePairList *miscParams = 0);
     };
 }
 
 #endif
-

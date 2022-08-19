@@ -30,7 +30,7 @@ THE SOFTWARE.
 #include "OgreWindowEventUtilities.h"
 #include "OgreRenderWindow.h"
 #include "OgreLogManager.h"
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX && !OGRE_GLSUPPORT_USE_EGL_HEADLESS
 #include <X11/Xlib.h>
 void GLXProc( Ogre::RenderWindow *win, const XEvent &event );
 #endif
@@ -52,7 +52,7 @@ void WindowEventUtilities::messagePump()
         TranslateMessage( &msg );
         DispatchMessage( &msg );
     }
-#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX && !OGRE_GLSUPPORT_USE_EGL_HEADLESS
     //GLX Message Pump
     RenderWindowList::iterator win = _msWindows.begin();
     RenderWindowList::iterator end = _msWindows.end();
@@ -254,7 +254,7 @@ LRESULT CALLBACK WindowEventUtilities::_WndProc(HWND hWnd, UINT uMsg, WPARAM wPa
     return DefWindowProc( hWnd, uMsg, wParam, lParam );
 }
 }
-#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX && !OGRE_GLSUPPORT_USE_EGL_HEADLESS
 //--------------------------------------------------------------------------------//
 void GLXProc( Ogre::RenderWindow *win, const XEvent &event )
 {

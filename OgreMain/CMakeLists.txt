@@ -191,14 +191,25 @@ elseif(ANDROID)
 
   set(PLATFORM_HEADER_INSTALL "Android")
 elseif (UNIX)
-  include_directories(include/GLX ${X11_INCLUDE_DIR})
+  set(PLATFORM_LIBS pthread)
 
-  file(GLOB PLATFORM_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/GLX/*.h")
-  file(GLOB PLATFORM_SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/GLX/*.cpp"
-      "${CMAKE_CURRENT_SOURCE_DIR}/src/OgrePOSIXTimer.cpp")
+  if (OGRE_GLSUPPORT_USE_EGL_HEADLESS)
+    set(PLATFORM_HEADERS "")
+    set(PLATFORM_SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/OgreConfigDialogNoOp.cpp")
+  else()
+    # Despite the GLX name, the code in src/GLX and include/GLX only uses the X11 API,
+    # not GLX one, so it's compatible with EGL as well.
+    include_directories(include/GLX)
 
-  set(PLATFORM_LIBS ${X11_LIBRARIES} ${X11_Xt_LIB} ${XAW_LIBRARY} pthread)
-  set(PLATFORM_HEADER_INSTALL "GLX")
+    file(GLOB PLATFORM_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/GLX/*.h")
+    file(GLOB PLATFORM_SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/GLX/*.cpp")
+
+    include_directories(${X11_INCLUDE_DIR})
+    list(APPEND PLATFORM_LIBS ${X11_LIBRARIES} ${X11_Xt_LIB} ${XAW_LIBRARY})
+  endif()
+
+  list(APPEND PLATFORM_SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/OgrePOSIXTimer.cpp")
+
   # some platforms require explicit linking to libdl, see if it's available
   find_library(DL_LIBRARY NAMES dl dlsym)
   mark_as_advanced(DL_LIBRARY)
