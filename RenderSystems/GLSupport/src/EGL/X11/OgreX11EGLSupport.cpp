@@ -56,11 +56,11 @@ namespace Ogre {
 
         int dummy;
 
-        if (XQueryExtension(mNativeDisplay, "RANDR", &dummy, &dummy, &dummy))
+        if (XQueryExtension((Display*)mNativeDisplay, "RANDR", &dummy, &dummy, &dummy))
         {
             XRRScreenConfiguration *screenConfig;
 
-            screenConfig = XRRGetScreenInfo(mNativeDisplay, DefaultRootWindow(mNativeDisplay));
+            screenConfig = XRRGetScreenInfo((Display*)mNativeDisplay, DefaultRootWindow(mNativeDisplay));
 
             if (screenConfig)
             {

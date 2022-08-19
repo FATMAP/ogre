@@ -58,6 +58,7 @@ namespace Ogre {
         : EGLWindow(glsupport) 
         //, mParentWindow(glsupport)   todo
     {
+        mIsExternal = false;
         mGLSupport = glsupport;
         mNativeDisplay = glsupport->getNativeDisplay();
     }
@@ -191,19 +192,17 @@ namespace Ogre {
                     "EGLWindow::create");
             }
 
-            mEglConfig = 0;
             mEglSurface = createSurfaceFromWindow(mEglDisplay, (NativeWindowType)mExternalWindow);
+            mIsExternal = true;
         }
 
         XSetErrorHandler(oldXErrorHandler);
 
         mIsTopLevel = (!mIsExternal && mParentWindow == DefaultRootWindow((Display*)mNativeDisplay));
-
     }
 
     void X11EGLWindow::createNativeWindow( int &left, int &top, uint &width, uint &height, String &title )
     {
-        mEglDisplay = mGLSupport->getGLDisplay();//todo
         XSetWindowAttributes attr;
         ulong mask;
         XVisualInfo *visualInfo = mGLSupport->getVisualFromFBConfig(mEglConfig);
@@ -460,6 +459,8 @@ namespace Ogre {
                 EGL_CHECK_ERROR
                 mEglDisplay = eglGetCurrentDisplay();
                 EGL_CHECK_ERROR
+
+                mEglConfig = mGLSupport->getGLConfigFromDrawable (mEglSurface, &width, &height);
             }
 
             // Note: Some platforms support AA inside ordinary windows
@@ -504,27 +505,10 @@ namespace Ogre {
             }
         }
 
-        initNativeCreatedWindow(miscParams);
-
-        if (mEglSurface)
+        if (mEglDisplay == EGL_NO_DISPLAY)
         {
-            mEglConfig = mGLSupport->getGLConfigFromDrawable (mEglSurface, &width, &height);
+            mEglDisplay = mGLSupport->getGLDisplay();
         }
-
-        if (!mEglConfig && eglContext)
-        {
-            mEglConfig = mGLSupport->getGLConfigFromContext(eglContext);
-
-            if (!mEglConfig)
-            {
-                // This should never happen.
-                OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR,
-                            "Unexpected failure to determine a EGLFBConfig",
-                            "EGLWindow::create");
-            }
-        }
-
-        mIsExternal = (mEglSurface != 0);
 
         if (!mEglConfig)
         {
@@ -555,6 +539,15 @@ namespace Ogre {
             mEglConfig = mGLSupport->selectGLConfig(minAttribs, maxAttribs);
             mHwGamma = false;
         }
+
+        initNativeCreatedWindow(miscParams);
+
+        // Read the width and height from the surface. The way we are called from
+        // Fatmap code, they are initially zero.
+        eglQuerySurface(mEglDisplay, mEglSurface, EGL_WIDTH, (EGLint *)&width);
+        EGL_CHECK_ERROR
+        eglQuerySurface(mEglDisplay, mEglSurface, EGL_HEIGHT, (EGLint *)&height);
+        EGL_CHECK_ERROR
 
         if (!mIsTopLevel)
         {
