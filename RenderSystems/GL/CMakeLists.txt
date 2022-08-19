@@ -65,6 +65,10 @@ if(NOT APPLE)
   )
 endif()
 
+if(OGRE_GLSUPPORT_USE_EGL)
+  add_definitions(-DGLEW_EGL)  # This one is only used in glew.c, not in headers.
+endif()
+
 add_definitions(-DGLEW_STATIC -DYY_NEVER_INTERACTIVE)
 #Note that in the next row SOURCE_FILES are added last. This is to prevent compilation problems of unity build found on Windows Visual Studio. 
 #In this situation any file added after the "glew.cpp" file, which belongs to the SOURCE_FILES package, does not compile
