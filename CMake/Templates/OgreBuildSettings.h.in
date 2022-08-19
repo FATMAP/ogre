@@ -109,4 +109,6 @@ WARNING: Disabling this will make the samples unusable.
 
 #cmakedefine01 OGRE_NO_LOCALE_STRCONVERT
 
+#cmakedefine01 OGRE_GLSUPPORT_USE_EGL_HEADLESS
+
 #endif

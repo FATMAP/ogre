@@ -13,6 +13,8 @@
 
 if(EGL_FOUND)
   cmake_dependent_option(OGRE_GLSUPPORT_USE_EGL "use EGL for GL Context Creation instead of GLX/ WGL" TRUE "NOT WIN32" FALSE)
+  cmake_dependent_option(OGRE_GLSUPPORT_USE_EGL_HEADLESS
+    "Use EGL in headless mode only (Unix-only feature)" FALSE "UNIX;OGRE_GLSUPPORT_USE_EGL" FALSE)
 endif()
 
 if(ANDROID)
@@ -63,7 +65,15 @@ elseif (APPLE)
     ${PROJECT_SOURCE_DIR}/OgreMain/include/OSX)
   set(PLATFORM_LIBS "-framework AppKit" ${OPENGL_gl_LIBRARY})
 elseif (UNIX)
-  if(OGRE_GLSUPPORT_USE_EGL)
+  if(OGRE_GLSUPPORT_USE_EGL_HEADLESS)
+    file(GLOB PLATFORM_HEADERS "include/EGL/Headless/*.h" "include/EGL/*.h")
+    file(GLOB PLATFORM_SOURCES "src/EGL/Headless/*.cpp" "src/EGL/*.cpp")
+
+    set(NATIVE_INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/EGL
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/EGL/Headless)
+    set(PLATFORM_LIBS ${EGL_LIBRARIES})
+  elseif(OGRE_GLSUPPORT_USE_EGL)
     file(GLOB PLATFORM_HEADERS "include/EGL/X11/*.h" "include/EGL/*.h")
     file(GLOB PLATFORM_SOURCES "src/EGL/X11/*.cpp" "src/EGL/*.cpp" "src/X11/*.cpp")
     

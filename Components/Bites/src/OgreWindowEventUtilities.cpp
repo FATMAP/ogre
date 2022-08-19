@@ -36,7 +36,7 @@ THE SOFTWARE.
 #   define NOMINMAX // required to stop windows.h messing up std::min
 #  endif
 #  include <windows.h>
-#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX && !OGRE_GLSUPPORT_USE_EGL_HEADLESS
 #include <X11/Xlib.h>
 #endif
 
@@ -47,7 +47,7 @@ typedef std::multimap<RenderWindow*, WindowEventListener*> WindowEventListeners;
 static WindowEventListeners _msListeners;
 static RenderWindowList _msWindows;
 
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX && !OGRE_GLSUPPORT_USE_EGL_HEADLESS
 static void GLXProc( RenderWindow *win, const XEvent &event );
 #endif
 
@@ -185,7 +185,7 @@ void WindowEventUtilities::messagePump()
         TranslateMessage( &msg );
         DispatchMessage( &msg );
     }
-#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX && !OGRE_GLSUPPORT_USE_EGL_HEADLESS
     //GLX Message Pump
     Ogre::RenderWindowList::iterator win = _msWindows.begin();
     Ogre::RenderWindowList::iterator end = _msWindows.end();
@@ -251,7 +251,7 @@ void WindowEventUtilities::_removeRenderWindow(RenderWindow* window)
         _msWindows.erase( i );
 }
 
-#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX && !OGRE_GLSUPPORT_USE_EGL_HEADLESS
 //--------------------------------------------------------------------------------//
 static void GLXProc( Ogre::RenderWindow *win, const XEvent &event )
 {
