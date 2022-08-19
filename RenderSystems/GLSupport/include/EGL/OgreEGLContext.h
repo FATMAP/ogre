@@ -53,9 +53,7 @@ namespace Ogre {
             void _createInternalResources(EGLDisplay eglDisplay, ::EGLConfig glconfig, ::EGLSurface drawable, ::EGLContext shareContext);
             void _destroyInternalResources();
         
-#if OGRE_PLATFORM == OGRE_PLATFORM_ANDROID
             void _updateInternalResources(EGLDisplay eglDisplay, ::EGLConfig glconfig, ::EGLSurface drawable);
-#endif
 
             void setCurrent() override;
             void endCurrent() override;

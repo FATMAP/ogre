@@ -99,7 +99,7 @@ namespace Ogre {
         setCurrent();
     }
     
-#if OGRE_PLATFORM == OGRE_PLATFORM_ANDROID
+
     void EGLContext::_updateInternalResources(EGLDisplay eglDisplay, ::EGLConfig glconfig, ::EGLSurface drawable)
     {
         mDrawable = drawable;
@@ -108,11 +108,12 @@ namespace Ogre {
 
         setCurrent();
 
+#if OGRE_PLATFORM == OGRE_PLATFORM_ANDROID
         // Initialise GL3W
         if (gleswInit())
             LogManager::getSingleton().logMessage("Failed to initialize GL3W");
-    }
 #endif
+    }
 
     void EGLContext::_destroyInternalResources()
     {
