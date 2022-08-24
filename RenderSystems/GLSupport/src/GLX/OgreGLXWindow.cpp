@@ -73,6 +73,7 @@ namespace Ogre
         mIsExternalGLControl = false;
         mClosed = false;
         mActive = false;
+        mVisible = false;
         mHidden = false;
         mVSync = false;
         mVSyncInterval = 1;
@@ -459,8 +460,8 @@ namespace Ogre
         mLeft = left;
         mTop = top;
         mActive = true;
+        mVisible = true;
         mClosed = false;
-
     }
 
     //-------------------------------------------------------------------------------------------------//
