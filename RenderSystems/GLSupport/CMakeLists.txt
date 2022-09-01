@@ -11,11 +11,11 @@
 
 # Add platform specific settings
 
-if(EGL_FOUND)
-  cmake_dependent_option(OGRE_GLSUPPORT_USE_EGL "use EGL for GL Context Creation instead of GLX/ WGL" TRUE "NOT WIN32" FALSE)
-  cmake_dependent_option(OGRE_GLSUPPORT_USE_EGL_HEADLESS
-    "Use EGL in headless mode only (Unix-only feature)" FALSE "UNIX;OGRE_GLSUPPORT_USE_EGL" FALSE)
-endif()
+cmake_dependent_option(OGRE_GLSUPPORT_USE_EGL
+  "Use EGL for GL Context Creation instead of GLX/ WGL" TRUE "EGL_FOUND;NOT WIN32" FALSE)
+
+cmake_dependent_option(OGRE_GLSUPPORT_USE_EGL_HEADLESS
+  "Use EGL in headless mode only (Unix-only feature)" FALSE "OGRE_GLSUPPORT_USE_EGL;UNIX" FALSE)
 
 if(ANDROID)
   file(GLOB PLATFORM_HEADERS "include/EGL/Android/*.h" "include/EGL/*.h")
