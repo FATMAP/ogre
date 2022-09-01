@@ -37,6 +37,10 @@ THE SOFTWARE.
 
 #include "OgreGLUtil.h"
 
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+
 namespace Ogre {
     GLNativeSupport* getGLSupport(int profile)
     {
@@ -46,11 +50,18 @@ namespace Ogre {
     HeadlessEGLSupport::HeadlessEGLSupport(int profile) : EGLSupport(profile)
     {
         mRandr = false;
-        mNativeDisplay = EGL_DEFAULT_DISPLAY;
 
-        // This call has side effects that we need. In particular, it calls
-        // eglIntialize() the first time it's called. It also fills mGLDisplay for us.
-        getGLDisplay();
+        mGLDisplay = selectEglDisplay();
+
+        if (eglInitialize(mGLDisplay, &mEGLMajor, &mEGLMinor) == EGL_FALSE)
+        {
+            OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR,
+                        "Couldn`t initialize EGLDisplay.",
+                        __FUNCTION__);
+        }
+
+        // This only works after eglInitialize().
+        printPlatformInfo(mGLDisplay);
 
         // With headless rendering there is no display.
         // Yet, we still have to fill this. So, fill it with zeros.
@@ -114,5 +125,87 @@ namespace Ogre {
         window->create(name, width, height, fullScreen, miscParams);
 
         return window;
+    }
+
+    ::EGLDisplay HeadlessEGLSupport::selectEglDisplay()
+    {
+        // No, we can't make the OGRE_HEADLESS_EGL_DEVICE_IDX a window parameter.
+        // If we did, different windows may be assigned different EGL devices,
+        // and that would mean different EGLDisplay values for different windows.
+        // Ogre doesn't support such a setup.
+        if (const char* eglDeviceIdxStr = getenv("OGRE_HEADLESS_EGL_DEVICE_IDX"))
+        {
+            const long eglDeviceIdx = StringConverter::parseLong(eglDeviceIdxStr, -1);
+            if (eglDeviceIdx < 0)
+            {
+                OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+                            "Invalid value in OGRE_HEADLESS_EGL_DEVICE_IDX environment variable. "
+                            "A non-negative integer was expected.",
+                            __FUNCTION__);
+            }
+
+            auto eglQueryDevicesEXT = (PFNEGLQUERYDEVICESEXTPROC)eglGetProcAddress(
+                "eglQueryDevicesEXT");
+            if (!eglQueryDevicesEXT)
+            {
+                OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+                            "OGRE_HEADLESS_EGL_DEVICE_IDX environment variable is set, yet this "
+                            "EGL implementation misses the device enumeration extension.",
+                            __FUNCTION__);
+            }
+
+            EGLint numDevices = 0;
+            eglQueryDevicesEXT(0, nullptr, &numDevices);
+
+            std::vector<EGLDeviceEXT> devices(numDevices);
+            eglQueryDevicesEXT(numDevices, devices.data(), &numDevices);
+
+            if (eglDeviceIdx >= numDevices)
+            {
+                OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+                            "The EGL device requested by the OGRE_HEADLESS_EGL_DEVICE_IDX "
+                            "environment variable doesn't exist.",
+                            __FUNCTION__);
+            }
+
+            printf("Selecting EGL device #%d, requested by OGRE_HEADLESS_EGL_DEVICE_IDX\n",
+                   (int)eglDeviceIdx);
+
+            // In case it crashes shortly after.
+            fflush(stdout);
+
+            return eglGetPlatformDisplay(EGL_PLATFORM_DEVICE_EXT,
+                                         devices[eglDeviceIdx], nullptr);
+        }
+
+        printf("Selecting the default EGL platform. Use the OGRE_HEADLESS_EGL_DEVICE_IDX "
+               "environment variable to force a particular EGL device. Use eglinfo to list "
+               "EGL devices.\n");
+
+        // In case it crashes shortly after.
+        fflush(stdout);
+
+        return eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    }
+
+    void HeadlessEGLSupport::printPlatformInfo(EGLDisplay dpy)
+    {
+        printf("EGL vendor string: %s\n", eglQueryString(dpy, EGL_VENDOR));
+
+#ifdef EGL_MESA_query_driver
+        const char* extensions = eglQueryString(dpy, EGL_EXTENSIONS);
+        if (extensions && strstr(extensions, "EGL_MESA_query_driver"))
+        {
+            auto eglGetDisplayDriverName = (PFNEGLGETDISPLAYDRIVERNAMEPROC)eglGetProcAddress(
+                "eglGetDisplayDriverName");
+
+            if (eglGetDisplayDriverName)
+            {
+                printf("EGL driver name: %s\n", eglGetDisplayDriverName(dpy));
+            }
+        }
+#endif
+        // In case it crashes shortly after.
+        fflush(stdout);
     }
 }

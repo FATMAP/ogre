@@ -42,12 +42,25 @@ namespace Ogre {
 
             virtual void switchMode(uint& width, uint& height, short& frequency);
 
-            NativeDisplayType getNativeDisplay() { return mNativeDisplay; }
+            /**
+             * Here we shadow a member of the base class and we do it on purpose.
+             * The base class version calls eglGetDisplay(mNativeDisplay) followed
+             * by eglInitialize(). That's not what we want.
+             * Clients should use getEglDisplay() instead.
+             */
+            ::EGLDisplay getGLDisplay() = delete;
+
+            ::EGLDisplay getEglDisplay() const { return mGLDisplay; }
 
             RenderWindow* newWindow(const String& name,
                                     unsigned int width, unsigned int height,
                                     bool fullScreen,
                                     const NameValuePairList *miscParams = 0);
+
+        private:
+            ::EGLDisplay selectEglDisplay();
+
+            void printPlatformInfo(EGLDisplay dpy);
     };
 }
 

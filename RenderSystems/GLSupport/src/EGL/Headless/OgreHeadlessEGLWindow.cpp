@@ -150,7 +150,7 @@ namespace Ogre {
             }
         }
 
-        mEglDisplay = mGLSupport->getGLDisplay();
+        mEglDisplay = mGLSupport->getEglDisplay();
 
         int minAttribs[] = {
             EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
@@ -180,7 +180,6 @@ namespace Ogre {
 
         mHwGamma = false;
         mEglConfig = mGLSupport->selectGLConfig(minAttribs, maxAttribs);
-        mNativeDisplay = mGLSupport->getNativeDisplay();
 
         mEglSurface = createPBufferSurface(width, height); // May modify width and height.
 
