@@ -592,7 +592,7 @@ namespace Ogre {
         }
         void applyDeltaValue(const Vector4& val) override
         {
-            setValue(mLight->getAttenuation() + val);
+            setValue(Vector4(mLight->getAttenuation()) + val);
         }
         void setCurrentStateAsBaseValue(void) override
         {
