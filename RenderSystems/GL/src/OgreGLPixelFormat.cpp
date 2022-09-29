@@ -42,6 +42,7 @@ namespace Ogre  {
             case PF_A8:
                 return GL_ALPHA;
             case PF_L8:
+            case PF_R8:
                 return GL_LUMINANCE;
             case PF_L16:
                 return GL_LUMINANCE;
@@ -125,6 +126,7 @@ namespace Ogre  {
                 return GL_UNSIGNED_SHORT;
             case PF_A8:
             case PF_L8:
+            case PF_R8:
             case PF_R8G8B8:
             case PF_B8G8R8:
             case PF_BYTE_LA:
@@ -192,6 +194,7 @@ namespace Ogre  {
             case PF_DEPTH:
                 return GL_DEPTH_COMPONENT16;
             case PF_L8:
+            case PF_R8:
                 return GL_LUMINANCE8;
             case PF_L16:
                 return GL_LUMINANCE16;
