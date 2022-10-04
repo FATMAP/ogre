@@ -28,6 +28,8 @@ THE SOFTWARE.
 #ifndef __Math_H__
 #define __Math_H__
 
+#include <algorithm>
+#include <cmath>
 #include <limits>
 #include "OgrePrerequisites.h"
 #include "OgreHeaderPrefix.h"
