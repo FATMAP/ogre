@@ -121,7 +121,7 @@ elseif(WIN32)
     "${CMAKE_CURRENT_SOURCE_DIR}/misc/OgreWin32Resources.rc"
   )
   source_group(Resources FILES ${RESOURCE_FILES})
-elseif(APPLE)
+elseif(APPLE AND NOT APPLE_IOS)
   list(APPEND SOURCES 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/OgreOSXConfigDialog.mm"
     "${CMAKE_CURRENT_SOURCE_DIR}/misc/ogrelogo.png")
