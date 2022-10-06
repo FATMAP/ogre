@@ -60,7 +60,7 @@ elseif (UNIX)
     set(OGRE_RELEASE_PATH "/${PLATFORM_NAME}")
   endif()
   if(APPLE AND APPLE_IOS)
-    set(OGRE_LIB_RELEASE_PATH "/Release")
+    set(OGRE_LIB_RELEASE_PATH "")
   endif(APPLE AND APPLE_IOS)
 endif ()
 
