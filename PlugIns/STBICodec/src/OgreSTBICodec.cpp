@@ -33,13 +33,62 @@ THE SOFTWARE.
 
 #include "OgrePlatformInformation.h"
 
+#include <cstddef>
+#include <cstring>
+
 #if __OGRE_HAVE_NEON
 #define STBI_NEON
 #endif
 
+// The thing is that a memory buffer allocated by STBI ends up getting freed by OGRE_FREE(),
+// which is implemented by "new char[size]". To avoid that, we tell STBI to use custom
+// memory allocation functions.
+void* stbi_malloc_impl(size_t size)
+{
+    try
+    {
+        // OGRE_MALLOC uses new[] inside, but doesn't catch exceptions.
+        // STBI expects NULL to be returned in case of allocation error.
+        return OGRE_MALLOC(size, MEMCATEGORY_GENERAL);
+    }
+    catch (const std::bad_alloc&)
+    {
+        return nullptr;
+    }
+}
+
+void stbi_free_impl(void* buf)
+{
+    // OGRE_FREE() is implemented in terms of delete[], which doesn't throw exceptions.
+    return OGRE_FREE(buf, MEMCATEGORY_GENERAL);
+}
+
+void* stbi_realloc_sized_impl(void* old_buf, size_t old_size, size_t new_size)
+{
+    if (new_size <= old_size)
+    {
+        return old_buf;
+    }
+
+    void *new_buf = stbi_malloc_impl(new_size);
+    if (!new_buf)
+    {
+        // The original buffer is not freed in this case.
+        return nullptr;
+    }
+
+    memcpy(new_buf, old_buf, old_size);
+    stbi_free_impl(old_buf);
+
+    return new_buf;
+}
+
 #define STBI_NO_STDIO
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_STATIC
+#define STBI_MALLOC stbi_malloc_impl
+#define STBI_FREE stbi_free_impl
+#define STBI_REALLOC_SIZED stbi_realloc_sized_impl
 #include "stbi/stb_image.h"
 
 #ifdef HAVE_ZLIB
