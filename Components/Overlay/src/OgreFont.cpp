@@ -448,7 +448,7 @@ namespace Ogre
 
         Real textureAspect = (Real)finalWidth / (Real)finalHeight;
 
-        Image img(PF_BYTE_LA, finalWidth, finalHeight);
+        Image img(PF_BYTE_RGBA, finalWidth, finalHeight);
         // Reset content (transparent)
         img.setTo(ColourValue::ZERO);
 
@@ -526,11 +526,15 @@ namespace Ogre
                         {
                             // Use the same greyscale pixel for all components RGBA
                             *pDest++= *pSrc;
+                            *pDest++= *pSrc;
+                            *pDest++= *pSrc;
                         }
                         else
                         {
                             // Always white whether 'on' or 'off' pixel, since alpha
                             // will turn off
+                            *pDest++= 0xFF;
+                            *pDest++= 0xFF;
                             *pDest++= 0xFF;
                         }
                         // Always use the greyscale value for alpha
