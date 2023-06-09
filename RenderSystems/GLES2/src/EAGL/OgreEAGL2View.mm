@@ -32,6 +32,7 @@ THE SOFTWARE.
 #include "OgreRenderWindow.h"
 #include "OgreGLES2RenderSystem.h"
 #include "OgreViewport.h"
+#include "OgreBuildSettings.h"
 
 #import <QuartzCore/QuartzCore.h>
 #import <UIKit/UIWindow.h>
@@ -54,7 +55,11 @@ using namespace Ogre;
 
 + (Class)layerClass
 {
+#if OGRE_GLES2_USE_ANGLE
+    return [CAMetalLayer class];
+#else
     return [CAEAGLLayer class];
+#endif
 }
 
 - (void)layoutSubviews

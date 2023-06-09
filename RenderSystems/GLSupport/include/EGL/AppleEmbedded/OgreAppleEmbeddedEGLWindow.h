@@ -1,10 +1,11 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-(Object-oriented Graphics Rendering Engine)
+    (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2014 Torus Knot Software Ltd
+Copyright (c) 2023 FATMAP
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,17 +27,44 @@ THE SOFTWARE.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __EAGL2ViewController_H__
-#define __EAGL2ViewController_H__
+#ifndef __AppleEmbeddedEGLWindow_H__
+#define __AppleEmbeddedEGLWindow_H__
 
-#import <UIKit/UIViewController.h>
-#import "OgreRoot.h"
+#include "OgreEGLWindow.h"
+#include "OgreAppleEmbeddedEGLSupport.h"
 
-using namespace Ogre;
+#ifdef __OBJC__
+// Forward declarations
+@class UIWindow;
+@class UIView;
+@class UIViewController;
+#endif
 
-@interface EAGL2ViewController : UIViewController {
+namespace Ogre {
+    class _OgrePrivate AppleEmbeddedEGLWindow : public EGLWindow
+    {
+    private:
+#ifdef __OBJC__
+        UIView *mView;
+#else
+        void *mViewPlaceholder;
+#endif
+
+        int mMSAA = 0;
+        bool mUsingExternalView = false;
+        float mContentScalingFactor = 1.f;
+        
+    protected:
+        void resize(unsigned int width, unsigned int height) override;
+        void windowMovedOrResized() override;
+        
+    public:
+        AppleEmbeddedEGLWindow(AppleEmbeddedEGLSupport* glsupport);
+        void create(const String& name, unsigned int width, unsigned int height,
+                    bool fullScreen, const NameValuePairList *miscParams) override;
+        
+        float getViewPointToPixelScale() override { return 1.0; /*mScale;*/ }
+    };
 }
-
-@end
 
 #endif

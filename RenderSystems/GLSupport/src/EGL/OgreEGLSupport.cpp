@@ -58,6 +58,19 @@ namespace Ogre {
 
     EGLDisplay EGLSupport::getGLDisplay(void)
     {
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE_IOS
+        EGLAttrib displayAttributes[] = {
+            EGL_PLATFORM_ANGLE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_TYPE_METAL_ANGLE,
+            EGL_NONE
+        };
+
+        mGLDisplay = eglGetPlatformDisplay(
+            EGL_PLATFORM_ANGLE_ANGLE,
+            reinterpret_cast<void*>(EGL_DEFAULT_DISPLAY),
+            displayAttributes);
+        EGL_CHECK_ERROR
+#else
+
 #if defined(EGL_VERSION_1_5) && OGRE_PLATFORM != OGRE_PLATFORM_ANDROID && OGRE_PLATFORM != OGRE_PLATFORM_EMSCRIPTEN
         static auto eglQueryDevicesEXT = (PFNEGLQUERYDEVICESEXTPROC)eglGetProcAddress("eglQueryDevicesEXT");
         static auto eglQueryDeviceStringEXT =
@@ -87,11 +100,12 @@ namespace Ogre {
             }
         }
         else
-#endif
+#endif  // defined(EGL_VERSION_1_5) ...
         {
             mGLDisplay = eglGetDisplay(mNativeDisplay);
             EGL_CHECK_ERROR
         }
+#endif  // OGRE_PLATFORM == OGRE_PLATFORM_APPLE_IOS
 
         if(mGLDisplay == EGL_NO_DISPLAY)
         {

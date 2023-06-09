@@ -47,7 +47,17 @@ elseif (WIN32)
     set(PLATFORM_LIBS ${OPENGL_gl_LIBRARY})
   endif()
 elseif(APPLE_IOS)
-  # only works with GLES2 - no shared components here.
+  # With EAGL, we don't need any platform sources or headers.
+  # With ANGLE, we do.
+  if (OGRE_GLES2_USE_ANGLE)
+    file(GLOB PLATFORM_HEADERS "include/EGL/AppleEmbedded/*.h" "include/EGL/*.h")
+    file(GLOB PLATFORM_SOURCES "src/EGL/AppleEmbedded/*.mm" "src/EGL/*.cpp")
+
+    set(NATIVE_INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/EGL
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/EGL/AppleEmbedded
+        ${ANGLE_INCLUDE_DIR})
+  endif ()
 elseif (APPLE)
   file(GLOB PLATFORM_HEADERS "include/OSX/*.h")
   file(GLOB PLATFORM_SOURCES "src/OSX/*.mm")

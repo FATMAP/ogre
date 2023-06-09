@@ -103,7 +103,7 @@ namespace Ogre {
         mRenderSystem->_getStateCacheManager()->bindGLTexture(texTarget, mTextureID);
 
         if (renderCaps->hasCapability(RSC_DEBUG))
-            OGRE_CHECK_GL_ERROR(glLabelObjectEXT(GL_TEXTURE, mTextureID, -1, mName.c_str()));
+            OGRE_CHECK_GL_ERROR(glLabelObjectEXT(GL_TEXTURE, mTextureID, 0, mName.c_str()));
 
         // If we can do automip generation and the user desires this, do so
         mMipmapsHardwareGenerated = !PixelUtil::isCompressed(mFormat);

@@ -25,7 +25,52 @@
 
 include(FindPkgMacros)
 
-IF(APPLE)
+
+IF(APPLE_IOS AND OGRE_GLES2_USE_ANGLE)
+  FIND_PATH(
+    ANGLE_INCLUDE_DIR GLES2/gl2ext_angle.h
+    DOC "The directory containing GLES2/gl2ext_angle.h"
+    REQUIRED
+  )
+
+  FIND_PATH(
+    ANGLE_LIB_DIR
+    NAMES libGLESv2.framework libGLESv2_static.a
+    DOC "The directory containing libGLESv2.framework or libGLESv2_static.a"
+    REQUIRED
+  )
+
+  FIND_LIBRARY(
+    ANGLE_GLESv2_LIB
+
+    # This catches both libGLESv2.framework and libGLESv2_static.a
+    NAMES libGLESv2 GLESv2_static
+
+    HINTS ${ANGLE_LIB_DIR}
+    REQUIRED
+  )
+
+  FIND_LIBRARY(
+    ANGLE_EGL_LIB
+
+    # This catches both libEGL.framework and libEGL_static.a
+    NAMES libEGL EGL_static
+
+    HINTS ${ANGLE_LIB_DIR}
+    REQUIRED
+  )
+
+  set(OPENGLES2_FOUND TRUE)
+  set(OPENGLES2_INCLUDE_DIR ${ANGLE_INCLUDE_DIR})
+  set(OPENGLES2_LIBRARIES ${ANGLE_GLESv2_LIB})
+
+  set(EGL_FOUND TRUE)
+  set(EGL_INCLUDE_DIR ${ANGLE_INCLUDE_DIR})
+  set(EGL_LIBRARIES ${ANGLE_EGL_LIB})
+
+  return()
+
+ELSEIF(APPLE)
   create_search_paths(/Developer/Platforms)
   findpkg_framework(OpenGLES2)
   set(OPENGLES2_gl_LIBRARY "-framework OpenGLES")

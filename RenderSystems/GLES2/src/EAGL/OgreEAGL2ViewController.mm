@@ -33,8 +33,6 @@ using namespace Ogre;
 
 @implementation EAGL2ViewController
 
-@synthesize mGLSupport;
-
 - (id)init
 {
     if ((self = [super initWithNibName:nil bundle:nil]))
@@ -92,10 +90,8 @@ using namespace Ogre;
     // Inform the view that it needs to call layoutSubviews
     [self.view setNeedsDisplay];
 
-    if(mGLSupport->interfaceOrientationIsSupported(rotateToOrientation))
-        return YES;
-    else
-        return NO;
+    NSArray *supportedOrientations = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UISupportedInterfaceOrientations"];
+    return [supportedOrientations containsObject:rotateToOrientation];
 }
 
 @end

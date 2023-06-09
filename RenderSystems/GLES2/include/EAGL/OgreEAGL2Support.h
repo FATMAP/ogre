@@ -62,9 +62,6 @@ namespace Ogre {
                                         const NameValuePairList *miscParams = 0);
 
 #ifdef __OBJC__
-            bool portraitIsSupported(void);
-            bool interfaceOrientationIsSupported(NSString *orientation);
-
             EAGLES2Context * createNewContext(CAEAGLLayer *drawable, EAGLSharegroup *group) const;
             CFDictionaryRef getGLConfigFromContext(EAGLES2Context context);
 #endif

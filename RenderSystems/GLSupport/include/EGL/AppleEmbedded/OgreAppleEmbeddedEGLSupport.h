@@ -1,10 +1,11 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-(Object-oriented Graphics Rendering Engine)
+    (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2014 Torus Knot Software Ltd
+Copyright (c) 2023 FATMAP
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,17 +27,25 @@ THE SOFTWARE.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __EAGL2ViewController_H__
-#define __EAGL2ViewController_H__
+#ifndef __AppleEmbeddedEGLSupport_H__
+#define __AppleEmbeddedEGLSupport_H__
 
-#import <UIKit/UIViewController.h>
-#import "OgreRoot.h"
+#include "OgreEGLSupport.h"
 
-using namespace Ogre;
+namespace Ogre {
+    class _OgrePrivate AppleEmbeddedEGLSupport : public EGLSupport
+    {
+    public:
+        AppleEmbeddedEGLSupport();
+        virtual ~AppleEmbeddedEGLSupport();
 
-@interface EAGL2ViewController : UIViewController {
+        ConfigOptionMap getConfigOptions() override;
+
+        RenderWindow* newWindow(const String& name,
+                                unsigned int width, unsigned int height,
+                                bool fullScreen,
+                                const NameValuePairList *miscParams = 0) override;
+    };
 }
-
-@end
 
 #endif

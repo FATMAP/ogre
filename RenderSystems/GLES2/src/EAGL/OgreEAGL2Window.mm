@@ -246,8 +246,6 @@ namespace Ogre {
 
         OgreAssert(mContext != nil, "EAGL2Window: Failed to create OpenGL ES context");
 
-        mViewController.mGLSupport = mGLSupport;
-        
         if(!mUsingExternalViewController)
         {
             [mWindow addSubview:mViewController.view];

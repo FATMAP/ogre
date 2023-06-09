@@ -48,11 +48,16 @@ endif (OGRE_CONFIG_ENABLE_GLES2_CG_SUPPORT)
 # Add system specific settings
 if (APPLE)
   add_definitions(-DGLES_SILENCE_DEPRECATION)
-  file(GLOB PLATFORM_HEADERS "include/EAGL/*.h")
-  file(GLOB PLATFORM_SOURCES "src/EAGL/*.mm")
-
   include_directories(src/EAGL include/EAGL)
   set(PLATFORM_HEADER_INSTALL "APPLE")
+  
+  if (OGRE_GLES2_USE_ANGLE)
+    file(GLOB PLATFORM_HEADERS "include/EAGL/OgreEAGL2View.h" "include/EAGL/OgreEAGL2ViewController.h")
+    file(GLOB PLATFORM_SOURCES "src/EAGL/OgreEAGL2View.mm" "src/EAGL/OgreEAGL2ViewController.mm")
+  else ()
+    file(GLOB PLATFORM_HEADERS "include/EAGL/*.h")
+    file(GLOB PLATFORM_SOURCES "src/EAGL/*.mm")
+  endif ()
 endif ()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/GLSLES/include)
@@ -70,6 +75,11 @@ endif ()
 if (OGRE_CONFIG_ENABLE_GLES2_CG_SUPPORT)
   target_include_directories(RenderSystem_GLES2 PUBLIC ${HLSL2GLSL_INCLUDE_DIRS})
   target_link_libraries(RenderSystem_GLES2 ${HLSL2GLSL_LIBRARIES})
+endif ()
+
+if (OGRE_GLES2_USE_ANGLE)
+  target_include_directories(RenderSystem_GLES2 PUBLIC ${OPENGLES2_INCLUDE_DIR} ${EGL_INCLUDE_DIR})
+  target_link_libraries(RenderSystem_GLES2 PRIVATE ${OPENGLES2_LIBRARIES} ${EGL_LIBRARIES})
 endif ()
 
 if (NOT OGRE_STATIC)
