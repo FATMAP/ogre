@@ -54,6 +54,18 @@ THE SOFTWARE.
     #define EGL_CHECK_ERROR {}
 #endif
 
+#define EGL_CHECK_ERROR_ALWAYS_ENABLED \
+{ \
+    int e = eglGetError(); \
+    if ((e != 0) && (e != EGL_SUCCESS))\
+    { \
+        char msgBuf[4096]; \
+        sprintf(msgBuf, "EGL error 0x%04X in %s at line %i\n", e, __PRETTY_FUNCTION__, __LINE__); \
+        LogManager::getSingleton().logMessage(msgBuf); \
+        OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, msgBuf, __PRETTY_FUNCTION__); \
+    } \
+}
+
 namespace Ogre {
     class _OgrePrivate EGLSupport : public GLNativeSupport
     {

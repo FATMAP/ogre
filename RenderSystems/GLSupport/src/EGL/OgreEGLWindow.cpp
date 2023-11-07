@@ -122,7 +122,7 @@ namespace Ogre {
         mContext->setCurrent();
         if (eglSwapBuffers(mEglDisplay, mEglSurface) == EGL_FALSE)
         {
-            EGL_CHECK_ERROR
+            EGL_CHECK_ERROR_ALWAYS_ENABLED
             OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "Fail to SwapBuffers");
         }
     }
@@ -138,12 +138,12 @@ namespace Ogre {
         {
             *static_cast<GLContext**>(pData) = mContext;
             return;
-        } 
+        }
         else if (name == "WINDOW")
         {
             *static_cast<NativeWindowType*>(pData) = mWindow;
             return;
-        } 
+        }
     }
 
     PixelFormat EGLWindow::suggestPixelFormat() const
