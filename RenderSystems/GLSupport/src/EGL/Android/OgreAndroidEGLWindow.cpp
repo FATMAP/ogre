@@ -223,8 +223,12 @@ namespace Ogre {
     {
         if(mClosed)
             return;
-        
-        if (!mPreserveContext)
+
+        if (mPreserveContext)
+        {
+            mContext->endCurrent();
+        }
+        else
         {
             mContext->setCurrent();
 
