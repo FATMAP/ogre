@@ -161,30 +161,25 @@ namespace Ogre {
                             __FUNCTION__);
             }
 
-            printf("Selecting EGL device #%d, requested by OGRE_HEADLESS_EGL_DEVICE_IDX\n",
-                   (int)eglDeviceIdx);
+            LogManager::getSingleton().getDefaultLog()->logMessage(
+                StringUtil::format("Selecting EGL device #%d, requested by OGRE_HEADLESS_EGL_DEVICE_IDX", eglDeviceIdx),
+                LML_WARNING);
 
-            // In case it crashes shortly after.
-            fflush(stdout);
-
-            return eglGetPlatformDisplay(EGL_PLATFORM_DEVICE_EXT,
-                                         devices[eglDeviceIdx], nullptr);
+            return eglGetPlatformDisplay(EGL_PLATFORM_DEVICE_EXT, devices[eglDeviceIdx], nullptr);
 #endif
         }
-
-        printf("Selecting the default EGL platform. Use the OGRE_HEADLESS_EGL_DEVICE_IDX "
-               "environment variable to force a particular EGL device. Use eglinfo to list "
-               "EGL devices.\n");
-
-        // In case it crashes shortly after.
-        fflush(stdout);
+        LogManager::getSingleton().getDefaultLog()->logMessage(
+            "Selecting the default EGL platform. Use the OGRE_HEADLESS_EGL_DEVICE_IDX environment variable to force a "
+            "particular EGL device. Use eglinfo to list EGL devices.",
+            LML_WARNING);
 
         return eglGetDisplay(EGL_DEFAULT_DISPLAY);
     }
 
     void HeadlessEGLSupport::printPlatformInfo(EGLDisplay dpy)
     {
-        printf("EGL vendor string: %s\n", eglQueryString(dpy, EGL_VENDOR));
+        LogManager::getSingleton().getDefaultLog()->logMessage(
+            StringUtil::format("EGL vendor string: %s", eglQueryString(dpy, EGL_VENDOR)), LML_WARNING);
 
 #ifdef EGL_MESA_query_driver
         const char* extensions = eglQueryString(dpy, EGL_EXTENSIONS);
@@ -195,7 +190,8 @@ namespace Ogre {
 
             if (eglGetDisplayDriverName)
             {
-                printf("EGL driver name: %s\n", eglGetDisplayDriverName(dpy));
+                LogManager::getSingleton().getDefaultLog()->logMessage(
+                    StringUtil::format("EGL driver name: %s", eglGetDisplayDriverName(dpy)), LML_WARNING);
             }
         }
 #endif
