@@ -43,6 +43,9 @@ if(POLICY CMP0086)
   cmake_policy(SET CMP0086 NEW)
 endif()
 
+# correctly sets up (or clears) APPLE and ANDROID variables
+project(OGRE VERSION 14.0.1)
+
 if (APPLE AND NOT ANDROID)
   SET(CMAKE_SIZEOF_VOID_P 4)
   set(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvm.clang.1_0")
@@ -66,7 +69,6 @@ if (APPLE AND NOT ANDROID)
   add_definitions(-D__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0)
 endif ()
 
-project(OGRE VERSION 14.0.1)
 
 # extra version info
 set(OGRE_VERSION_SUFFIX "")

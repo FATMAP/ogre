@@ -316,7 +316,7 @@ endif()
 #######################################################################
 
 # Find sdl2
-if(NOT ANDROID AND NOT OGRE_GLSUPPORT_USE_EGL_HEADLESS)
+if(NOT ANDROID AND NOT OGRE_GLSUPPORT_USE_EGL_HEADLESS AND NOT EMSCRIPTEN)
   # find script does not work in cross compilation environment
   find_package(SDL2 QUIET)
   macro_log_feature(SDL2_FOUND "SDL2" "Simple DirectMedia Library needed for input handling in samples" "https://www.libsdl.org/")
