@@ -135,7 +135,7 @@ namespace Ogre {
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_ANDROID
         mAndroidLogger.reset(new AndroidLogListener());
-        mLogManager->getDefaultLog()->addListener(mAndroidLogger.get());
+        LogManager::getSingleton().getDefaultLog()->addListener(mAndroidLogger.get());
 #endif
 
         mDynLibManager = std::make_unique<DynLibManager>();
@@ -266,7 +266,7 @@ namespace Ogre {
         StringInterface::cleanupDictionary();
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_ANDROID
-        mLogManager->getDefaultLog()->removeListener(mAndroidLogger.get());
+        LogManager::getSingleton().getDefaultLog()->removeListener(mAndroidLogger.get());
 #endif
     }
 
