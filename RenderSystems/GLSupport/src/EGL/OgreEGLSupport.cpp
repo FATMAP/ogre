@@ -58,7 +58,7 @@ namespace Ogre {
 
     EGLDisplay EGLSupport::getGLDisplay(void)
     {
-#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE_IOS
+#if (OGRE_PLATFORM == OGRE_PLATFORM_APPLE_IOS || OGRE_PLATFORM == OGRE_PLATFORM_APPLE) && OGRE_GLES2_USE_ANGLE
         EGLAttrib displayAttributes[] = {
             EGL_PLATFORM_ANGLE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_TYPE_METAL_ANGLE,
             EGL_NONE
@@ -105,7 +105,7 @@ namespace Ogre {
             mGLDisplay = eglGetDisplay(mNativeDisplay);
             EGL_CHECK_ERROR
         }
-#endif  // OGRE_PLATFORM == OGRE_PLATFORM_APPLE_IOS
+#endif  // (OGRE_PLATFORM == OGRE_PLATFORM_APPLE_IOS || OGRE_PLATFORM == OGRE_PLATFORM_APPLE) && OGRE_GLES2_USE_ANGLE
 
         if(mGLDisplay == EGL_NO_DISPLAY)
         {

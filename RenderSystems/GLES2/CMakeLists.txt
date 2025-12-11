@@ -48,15 +48,23 @@ endif (OGRE_CONFIG_ENABLE_GLES2_CG_SUPPORT)
 # Add system specific settings
 if (APPLE)
   add_definitions(-DGLES_SILENCE_DEPRECATION)
-  include_directories(src/EAGL include/EAGL)
   set(PLATFORM_HEADER_INSTALL "APPLE")
   
-  if (OGRE_GLES2_USE_ANGLE)
-    file(GLOB PLATFORM_HEADERS "include/EAGL/OgreEAGL2View.h" "include/EAGL/OgreEAGL2ViewController.h")
-    file(GLOB PLATFORM_SOURCES "src/EAGL/OgreEAGL2View.mm" "src/EAGL/OgreEAGL2ViewController.mm")
-  else ()
-    file(GLOB PLATFORM_HEADERS "include/EAGL/*.h")
-    file(GLOB PLATFORM_SOURCES "src/EAGL/*.mm")
+  if (APPLE_IOS)
+    include_directories(src/EAGL include/EAGL)
+    
+    if (OGRE_GLES2_USE_ANGLE)
+      file(GLOB PLATFORM_HEADERS "include/EAGL/OgreEAGL2View.h" "include/EAGL/OgreEAGL2ViewController.h")
+      file(GLOB PLATFORM_SOURCES "src/EAGL/OgreEAGL2View.mm" "src/EAGL/OgreEAGL2ViewController.mm")
+    else ()
+      file(GLOB PLATFORM_HEADERS "include/EAGL/*.h")
+      file(GLOB PLATFORM_SOURCES "src/EAGL/*.mm")
+    endif ()
+  elseif (OGRE_GLES2_USE_ANGLE)
+    # macOS with ANGLE doesn't need platform-specific files
+    # Everything is handled through EGL in GLSupport
+    set(PLATFORM_HEADERS "")
+    set(PLATFORM_SOURCES "")
   endif ()
 endif ()
 
