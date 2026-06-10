@@ -54,7 +54,19 @@ namespace {
                 Real bdist = b.renderable->getSquaredViewDepth(camera);
                 if (Math::RealEqual(adist, bdist))
                 {
-                    // Must return deterministic result, doesn't matter what
+                    // Distances tie: prefer hash, then name, then pointer. Pointer compare alone
+                    // is deterministic within a run but varies across runs (heap addresses),
+                    // producing flaky output for screenshot tests and any other repeatable render.
+                    // Pointer fallback only kicks in for the degenerate case where two distinct
+                    // Pass objects are otherwise indistinguishable.
+                    const uint32 hasha = a.pass->getHash();
+                    const uint32 hashb = b.pass->getHash();
+                    if (hasha != hashb)
+                        return hasha < hashb;
+                    const String& namea = a.pass->getName();
+                    const String& nameb = b.pass->getName();
+                    if (namea != nameb)
+                        return namea < nameb;
                     return a.pass < b.pass;
                 }
                 else
