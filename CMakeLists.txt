@@ -21,52 +21,52 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(CMAKE_VS_PLATFORM_NAME STREQUAL "Tegra-Android")
-	set(CMAKE_LINK_LIBRARY_FLAG "")
+    set(CMAKE_LINK_LIBRARY_FLAG "")
 endif()
 
 # Use relative paths
 # This is mostly to reduce path size for command-line limits on windows
 if(WIN32)
-  # This seems to break Xcode projects so definitely don't enable on Apple builds
-  set(CMAKE_USE_RELATIVE_PATHS true)
-  set(CMAKE_SUPPRESS_REGENERATION true)
+    # This seems to break Xcode projects so definitely don't enable on Apple builds
+    set(CMAKE_USE_RELATIVE_PATHS true)
+    set(CMAKE_SUPPRESS_REGENERATION true)
 endif()
 
 # prefer GLVND
 if(POLICY CMP0072)
-  cmake_policy(SET CMP0072 NEW)
+    cmake_policy(SET CMP0072 NEW)
 endif()
 if(POLICY CMP0078)
-  cmake_policy(SET CMP0078 NEW)
+    cmake_policy(SET CMP0078 NEW)
 endif()
 if(POLICY CMP0086)
-  cmake_policy(SET CMP0086 NEW)
+    cmake_policy(SET CMP0086 NEW)
 endif()
 
 # correctly sets up (or clears) APPLE and ANDROID variables
 project(OGRE VERSION 14.0.1)
 
 if (APPLE AND NOT ANDROID)
-  SET(CMAKE_SIZEOF_VOID_P 4)
-  set(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvm.clang.1_0")
-  set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++11")
-  set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
+    SET(CMAKE_SIZEOF_VOID_P 4)
+    set(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvm.clang.1_0")
+    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++11")
+    set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
 
-  if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
-    enable_language(OBJC)
-    enable_language(OBJCXX)
-  endif()
+    if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
+        enable_language(OBJC)
+        enable_language(OBJCXX)
+    endif()
 
-  if(POLICY CMP0068)
-    cmake_policy(SET CMP0068 NEW)  # CMake 3.9+: `RPATH` settings on macOS do not affect `install_name`.
-  endif()
+    if(POLICY CMP0068)
+        cmake_policy(SET CMP0068 NEW)  # CMake 3.9+: `RPATH` settings on macOS do not affect `install_name`.
+    endif()
 
-  if (NOT CMAKE_OSX_ARCHITECTURES)
-    set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "") # target the common case
-  endif()
+    if (NOT CMAKE_OSX_ARCHITECTURES)
+        set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "") # target the common case
+    endif()
 
-  # otherwise apple defines a macro named check that conflicts with boost
-  add_definitions(-D__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0)
+    # otherwise apple defines a macro named check that conflicts with boost
+    add_definitions(-D__ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES=0)
 endif ()
 
 
@@ -98,9 +98,9 @@ set(OGRE_WORK_DIR ${PROJECT_BINARY_DIR})
 #####################################################################
 
 if (NOT CMAKE_BUILD_TYPE)
-  # CMake defaults to leaving CMAKE_BUILD_TYPE empty. This screws up
-  # differentiation between debug and release builds.
-  set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Choose the type of build, options are: None (CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel." FORCE)
+    # CMake defaults to leaving CMAKE_BUILD_TYPE empty. This screws up
+    # differentiation between debug and release builds.
+    set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Choose the type of build, options are: None (CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel." FORCE)
 endif ()
 
 # determine Ogre version numbers
@@ -112,85 +112,85 @@ configure_file("${OGRE_TEMPLATES_DIR}/version.txt.in" "${PROJECT_BINARY_DIR}/ver
 include(CheckTypeSize)
 CHECK_TYPE_SIZE("void*" OGRE_PTR_SIZE BUILTIN_TYPES_ONLY)
 if (OGRE_PTR_SIZE EQUAL 8)
-  set(OGRE_PLATFORM_X64 TRUE)
+    set(OGRE_PLATFORM_X64 TRUE)
 else ()
-  set(OGRE_PLATFORM_X64 FALSE)
+    set(OGRE_PLATFORM_X64 FALSE)
 endif ()
 
 if (WIN32)
-  # Create debug libraries with _d postfix
-  set(CMAKE_DEBUG_POSTFIX "_d")
+    # Create debug libraries with _d postfix
+    set(CMAKE_DEBUG_POSTFIX "_d")
 endif ()
 
 # Set compiler specific build flags
 if (NOT ANDROID AND NOT EMSCRIPTEN AND UNIX OR MINGW)
-  if (CMAKE_SYSTEM_PROCESSOR MATCHES "x86|X86|amd64|AMD64")
-    include(CheckCXXCompilerFlag)
-    check_cxx_compiler_flag(-msse OGRE_GCC_HAS_SSE)
-    if (OGRE_GCC_HAS_SSE)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse")
-    endif ()
-  endif()
+    if (CMAKE_SYSTEM_PROCESSOR MATCHES "x86|X86|amd64|AMD64")
+        include(CheckCXXCompilerFlag)
+        check_cxx_compiler_flag(-msse OGRE_GCC_HAS_SSE)
+        if (OGRE_GCC_HAS_SSE)
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse")
+        endif ()
+    endif()
 endif()
 
 if(UNIX)
-  # This is a set of sensible warnings that provide meaningful output
-  set(OGRE_WARNING_FLAGS "-Wall -Winit-self -Wcast-qual -Wwrite-strings -Wextra -Wundef -Wmissing-declarations -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-long-long")
-  if (EMSCRIPTEN)
-      set(OGRE_WARNING_FLAGS "${OGRE_WARNING_FLAGS} -Wno-warn-absolute-paths")
-  endif ()
-  if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(OGRE_WARNING_FLAGS "${OGRE_WARNING_FLAGS} -Wno-missing-braces")
-  else()
-    set(OGRE_WARNING_FLAGS "${OGRE_WARNING_FLAGS} -Wsuggest-override")
-  endif()
-  set(CMAKE_CXX_FLAGS "${OGRE_WARNING_FLAGS} ${CMAKE_CXX_FLAGS}")
+    # This is a set of sensible warnings that provide meaningful output
+    set(OGRE_WARNING_FLAGS "-Wall -Winit-self -Wcast-qual -Wwrite-strings -Wextra -Wundef -Wmissing-declarations -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-long-long")
+    if (EMSCRIPTEN)
+        set(OGRE_WARNING_FLAGS "${OGRE_WARNING_FLAGS} -Wno-warn-absolute-paths")
+    endif ()
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        set(OGRE_WARNING_FLAGS "${OGRE_WARNING_FLAGS} -Wno-missing-braces")
+    else()
+        set(OGRE_WARNING_FLAGS "${OGRE_WARNING_FLAGS} -Wsuggest-override")
+    endif()
+    set(CMAKE_CXX_FLAGS "${OGRE_WARNING_FLAGS} ${CMAKE_CXX_FLAGS}")
 endif ()
 if (MSVC)
-  add_definitions(-D_MT -D_USRDLL)
-  # MSVC does not like Ogre::Singleton (header pragma is enough for MSVC2015+ though)
-  add_definitions(/wd4661)
-  if (CMAKE_BUILD_TOOL STREQUAL "nmake")
-    # set variable to state that we are using nmake makefiles
-	set(NMAKE TRUE)
-  endif ()
+    add_definitions(-D_MT -D_USRDLL)
+    # MSVC does not like Ogre::Singleton (header pragma is enough for MSVC2015+ though)
+    add_definitions(/wd4661)
+    if (CMAKE_BUILD_TOOL STREQUAL "nmake")
+        # set variable to state that we are using nmake makefiles
+        set(NMAKE TRUE)
+    endif ()
 
-  # Enable intrinsics on MSVC in debug mode
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Oi")
-  if (CMAKE_CL_64)
-    # Visual Studio bails out on debug builds in 64bit mode unless
-	# this flag is set...
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj")
-	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /bigobj")
-  endif ()
+    # Enable intrinsics on MSVC in debug mode
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Oi")
+    if (CMAKE_CL_64)
+        # Visual Studio bails out on debug builds in 64bit mode unless
+        # this flag is set...
+        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj")
+        set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /bigobj")
+    endif ()
 
-  if (OGRE_PROJECT_FOLDERS)  
-    # Turn on the ability to create folders to organize projects (.vcproj)
-    # It creates "CMakePredefinedTargets" folder by default and adds CMake
-    # defined projects like INSTALL.vcproj and ZERO_CHECK.vcproj
-    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-  endif()
+    if (OGRE_PROJECT_FOLDERS)
+        # Turn on the ability to create folders to organize projects (.vcproj)
+        # It creates "CMakePredefinedTargets" folder by default and adds CMake
+        # defined projects like INSTALL.vcproj and ZERO_CHECK.vcproj
+        set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+    endif()
 
-  option(OGRE_BUILD_MSVC_MP "Enable build with multiple processes in Visual Studio" TRUE)
-  if(OGRE_BUILD_MSVC_MP)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-  endif ()
-  option(OGRE_BUILD_MSVC_ZM "Add /Zm256 compiler option to fix PCH errors on Visual Studio 2013" TRUE)
-  if(OGRE_BUILD_MSVC_ZM)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm256")
-  endif ()
+    option(OGRE_BUILD_MSVC_MP "Enable build with multiple processes in Visual Studio" TRUE)
+    if(OGRE_BUILD_MSVC_MP)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+    endif ()
+    option(OGRE_BUILD_MSVC_ZM "Add /Zm256 compiler option to fix PCH errors on Visual Studio 2013" TRUE)
+    if(OGRE_BUILD_MSVC_ZM)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm256")
+    endif ()
 endif ()
 if (MINGW)
-  add_definitions(-D_WIN32_WINNT=0x0501)
-  if( CMAKE_SIZEOF_VOID_P EQUAL 4 )
-    # set architecture to i686, since otherwise some versions of MinGW can't link
-    # the atomic primitives
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=i686")
-  endif ()
-  # disable this optimisation because it breaks release builds (reason unknown)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-tree-slp-vectorize")
-  # Ignore some really annoying warnings which also happen in dependencies
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=cast-qual -Wno-unused-local-typedefs")
+    add_definitions(-D_WIN32_WINNT=0x0501)
+    if( CMAKE_SIZEOF_VOID_P EQUAL 4 )
+        # set architecture to i686, since otherwise some versions of MinGW can't link
+        # the atomic primitives
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=i686")
+    endif ()
+    # disable this optimisation because it breaks release builds (reason unknown)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-tree-slp-vectorize")
+    # Ignore some really annoying warnings which also happen in dependencies
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=cast-qual -Wno-unused-local-typedefs")
 endif ()
 
 include(GenerateExportHeader)
@@ -202,18 +202,18 @@ include(GenerateExportHeader)
 #set(CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
 
 if((CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU") AND NOT OGRE_STATIC)
-  set(OGRE_VISIBILITY_FLAGS "-DOGRE_GCC_VISIBILITY") # for legacy headers
+    set(OGRE_VISIBILITY_FLAGS "-DOGRE_GCC_VISIBILITY") # for legacy headers
 endif()
 
 # determine system endianess
 if (MSVC OR ANDROID OR EMSCRIPTEN OR APPLE_IOS)
-  # This doesn't work on VS 2010
-  # MSVC only builds for intel anyway
-  # all IOS devices are little endian
-  set(OGRE_TEST_BIG_ENDIAN FALSE)
+    # This doesn't work on VS 2010
+    # MSVC only builds for intel anyway
+    # all IOS devices are little endian
+    set(OGRE_TEST_BIG_ENDIAN FALSE)
 else()
-  include(TestBigEndian)
-  test_big_endian(OGRE_TEST_BIG_ENDIAN)
+    include(TestBigEndian)
+    test_big_endian(OGRE_TEST_BIG_ENDIAN)
 endif()
 
 # definitions for samples
@@ -224,64 +224,66 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/lib")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin")
 if (WIN32 OR APPLE)
-  if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    # We don't want to install in default system location, install is really for the SDK, so call it that
-    set(CMAKE_INSTALL_PREFIX
-	  "${PROJECT_BINARY_DIR}/sdk" CACHE PATH "OGRE install prefix" FORCE
+    if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+        # We don't want to install in default system location, install is really for the SDK, so call it that
+        set(CMAKE_INSTALL_PREFIX
+   "${PROJECT_BINARY_DIR}/sdk" CACHE PATH "OGRE install prefix" FORCE
     )
-  endif (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    endif (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif(WIN32 OR APPLE)
 
 # Set up iOS overrides.
 if (APPLE_IOS)
-  set(CMAKE_EXE_LINKER_FLAGS "-framework Foundation -framework CoreGraphics -framework QuartzCore -framework UIKit")
-  set(XCODE_ATTRIBUTE_GCC_UNROLL_LOOPS "YES")
-  set(XCODE_ATTRIBUTE_LLVM_VECTORIZE_LOOPS "YES")
-  set(XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer")
-  set(XCODE_ATTRIBUTE_GCC_PRECOMPILE_PREFIX_HEADER "YES")
-  set(OGRE_BUILD_RENDERSYSTEM_GLES2 TRUE CACHE BOOL "Forcing OpenGL ES 2 RenderSystem for iOS" FORCE)
-  set(OGRE_STATIC TRUE CACHE BOOL "Forcing static build for iOS" FORCE)
-  set(MACOSX_BUNDLE_GUI_IDENTIFIER "com.yourcompany.\${PRODUCT_NAME:rfc1034identifier}")
+    set(CMAKE_EXE_LINKER_FLAGS "-framework Foundation -framework CoreGraphics -framework QuartzCore -framework UIKit")
+    set(XCODE_ATTRIBUTE_GCC_UNROLL_LOOPS "YES")
+    set(XCODE_ATTRIBUTE_LLVM_VECTORIZE_LOOPS "YES")
+    set(XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer")
+    set(XCODE_ATTRIBUTE_GCC_PRECOMPILE_PREFIX_HEADER "YES")
+    set(OGRE_BUILD_RENDERSYSTEM_GLES2 TRUE CACHE BOOL "Forcing OpenGL ES 2 RenderSystem for iOS" FORCE)
+    set(OGRE_STATIC TRUE CACHE BOOL "Forcing static build for iOS" FORCE)
+    set(MACOSX_BUNDLE_GUI_IDENTIFIER "com.yourcompany.\${PRODUCT_NAME:rfc1034identifier}")
 elseif (ANDROID)
-  set(TargetPlatform "Android")
-  set(OGRE_PLATFORM OGRE_PLATFORM_ANDROID)
-  option(OGRE_BUILD_ANDROID_JNI_SAMPLE "Enable JNI Sample" FALSE)
+    set(TargetPlatform "Android")
+    set(OGRE_PLATFORM OGRE_PLATFORM_ANDROID)
+    option(OGRE_BUILD_ANDROID_JNI_SAMPLE "Enable JNI Sample" FALSE)
 
-  set(OGRE_BUILD_RENDERSYSTEM_GLES2 TRUE CACHE BOOL "Forcing OpenGL ES 2 RenderSystem for Android" FORCE)
+    set(OGRE_BUILD_RENDERSYSTEM_GLES2 TRUE CACHE BOOL "Forcing OpenGL ES 2 RenderSystem for Android" FORCE)
 
-  set(OGRE_BUILD_PLUGIN_PCZ FALSE CACHE BOOL "Disable pcz on Android" FORCE)
-  set(OGRE_BUILD_TOOLS FALSE CACHE BOOL "Disable tools on Android" FORCE)
-  set(OGRE_STATIC TRUE CACHE BOOL "Forcing static build for Android" FORCE)
+    set(OGRE_BUILD_PLUGIN_PCZ FALSE CACHE BOOL "Disable pcz on Android" FORCE)
+    set(OGRE_BUILD_TOOLS FALSE CACHE BOOL "Disable tools on Android" FORCE)
+    set(OGRE_STATIC TRUE CACHE BOOL "Forcing static build for Android" FORCE)
 
-  # workaround for the legacy android toolchain
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    # workaround for the legacy android toolchain
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 elseif(EMSCRIPTEN)
-  add_definitions(-DEMSCRIPTEN=1 -D__EMSCRIPTEN__=1)
-  set(TargetPlatform "Emscripten")
-  set(OGRE_PLATFORM OGRE_PLATFORM_EMSCRIPTEN)
+    add_definitions(-DEMSCRIPTEN=1 -D__EMSCRIPTEN__=1)
+    set(TargetPlatform "Emscripten")
+    set(OGRE_PLATFORM OGRE_PLATFORM_EMSCRIPTEN)
 
-  set(OGRE_BUILD_RENDERSYSTEM_GLES2 TRUE CACHE BOOL "Forcing OpenGL ES 2 RenderSystem for Emscripten" FORCE)
-  set(OGRE_BUILD_RENDERSYSTEM_GL FALSE CACHE BOOL "Disable OpenGL RenderSystem for Emscripten" FORCE)
+    set(OGRE_BUILD_RENDERSYSTEM_GLES2 TRUE CACHE BOOL "Forcing OpenGL ES 2 RenderSystem for Emscripten" FORCE)
+    set(OGRE_BUILD_RENDERSYSTEM_GL FALSE CACHE BOOL "Disable OpenGL RenderSystem for Emscripten" FORCE)
 
-  set(OGRE_BUILD_PLUGIN_STBI TRUE CACHE BOOL "Enable STBIImageCodec on Emscripten (Smaller Footprint)" FORCE)
-  set(OGRE_BUILD_PLUGIN_FREEIMAGE FALSE CACHE BOOL "Disable Freeimage on Emscripten (Smaller Footprint)" FORCE)
-  set(OGRE_BUILD_PLUGIN_PCZ FALSE CACHE BOOL "Disable pcz on Emscripten" FORCE)
-  set(OGRE_BUILD_PLUGIN_BSP FALSE CACHE BOOL "Disable pcz on Emscripten" FORCE)
-  set(OGRE_BUILD_TOOLS FALSE CACHE BOOL "Disable tools on Emscripten" FORCE)
-  set(OGRE_BUILD_TESTS FALSE CACHE BOOL "Disable tests on Emscripten" FORCE)
-  set(OGRE_BUILD_COMPONENT_VOLUME FALSE CACHE BOOL "Disable volume component on Emscripten" FORCE)
-  set(OGRE_BUILD_COMPONENT_PAGING FALSE CACHE BOOL "Disable paging component on Emscripten" FORCE)
-  set(OGRE_BUILD_COMPONENT_TERRAIN FALSE CACHE BOOL "Disable terrain component on Emscripten" FORCE)
-  set(OGRE_STATIC TRUE CACHE BOOL "Forcing static build for Emscripten" FORCE)
+    set(OGRE_BUILD_PLUGIN_STBI TRUE CACHE BOOL "Enable STBIImageCodec on Emscripten (Smaller Footprint)" FORCE)
+    set(OGRE_BUILD_PLUGIN_FREEIMAGE FALSE CACHE BOOL "Disable Freeimage on Emscripten (Smaller Footprint)" FORCE)
+    set(OGRE_BUILD_PLUGIN_PCZ FALSE CACHE BOOL "Disable pcz on Emscripten" FORCE)
+    set(OGRE_BUILD_PLUGIN_BSP FALSE CACHE BOOL "Disable pcz on Emscripten" FORCE)
+    set(OGRE_BUILD_TOOLS FALSE CACHE BOOL "Disable tools on Emscripten" FORCE)
+    set(OGRE_BUILD_TESTS FALSE CACHE BOOL "Disable tests on Emscripten" FORCE)
+    set(OGRE_BUILD_COMPONENT_VOLUME FALSE CACHE BOOL "Disable volume component on Emscripten" FORCE)
+    set(OGRE_BUILD_COMPONENT_PAGING FALSE CACHE BOOL "Disable paging component on Emscripten" FORCE)
+    set(OGRE_BUILD_COMPONENT_TERRAIN FALSE CACHE BOOL "Disable terrain component on Emscripten" FORCE)
+    set(OGRE_STATIC TRUE CACHE BOOL "Forcing static build for Emscripten" FORCE)
 
-  set(OGRE_CONFIG_THREADS "0" CACHE STRING "Threading is unstable on Emscripten" FORCE)
+    set(OGRE_CONFIG_THREADS "0" CACHE STRING "Threading is unstable on Emscripten" FORCE)
 elseif (APPLE AND NOT APPLE_IOS)
-  # Make sure that the GLES2 render system is disabled for non-iOS Apple builds
-  set(OGRE_BUILD_RENDERSYSTEM_GLES2 FALSE CACHE BOOL "" FORCE)
+    # Make sure that the GLES2 render system is disabled for non-iOS Apple builds unless using ANGLE
+    if (NOT OGRE_GLES2_USE_ANGLE)
+        set(OGRE_BUILD_RENDERSYSTEM_GLES2 FALSE CACHE BOOL "" FORCE)
+    endif ()
 endif ()
 
 if(OGRE_BUILD_COMPONENT_MESHLODGENERATOR)
-  set(OGRE_CONFIG_ENABLE_MESHLOD TRUE CACHE BOOL "Forcing Mesh Lod" FORCE)
+    set(OGRE_CONFIG_ENABLE_MESHLOD TRUE CACHE BOOL "Forcing Mesh Lod" FORCE)
 endif()
 
 # Find dependencies
@@ -294,7 +296,7 @@ include(Dependencies)
 # Customise what to build
 option(OGRE_STATIC "Static build" FALSE)
 cmake_dependent_option(OGRE_ENABLE_PRECOMPILED_HEADERS "Use precompiled headers to speed up build" TRUE "NOT MINGW; NOT EMSCRIPTEN" FALSE)
-set(OGRE_RESOURCEMANAGER_STRICT "2" CACHE STRING 
+set(OGRE_RESOURCEMANAGER_STRICT "2" CACHE STRING
   "Make ResourceManager strict for faster operation. Possible values:
   0 - OFF search in all groups twice - for case sensitive and insensitive lookup [DEPRECATED]
   1 - PEDANTIC require an explicit resource group. Case sensitive lookup.
@@ -310,7 +312,7 @@ cmake_dependent_option(OGRE_BUILD_RENDERSYSTEM_GL3PLUS "Build OpenGL 3+ RenderSy
 cmake_dependent_option(OGRE_BUILD_RENDERSYSTEM_GL "Build OpenGL RenderSystem" TRUE "OPENGL_FOUND;NOT APPLE_IOS;NOT WINDOWS_STORE;NOT WINDOWS_PHONE" FALSE)
 
 cmake_dependent_option(OGRE_BUILD_RENDERSYSTEM_GLES2 "Build OpenGL ES 2.x RenderSystem" TRUE "OPENGLES2_FOUND;NOT WINDOWS_STORE;NOT WINDOWS_PHONE" FALSE)
-cmake_dependent_option(OGRE_GLES2_USE_ANGLE "Use ANGLE's implementation of OpenGL ES (iOS only)" FALSE "OGRE_BUILD_RENDERSYSTEM_GLES2;APPLE_IOS" FALSE)
+cmake_dependent_option(OGRE_GLES2_USE_ANGLE "Use ANGLE's implementation of OpenGL ES with Metal backend" FALSE "OGRE_BUILD_RENDERSYSTEM_GLES2;APPLE" FALSE)
 
 cmake_dependent_option(OGRE_BUILD_RENDERSYSTEM_METAL "Build Metal RenderSystem" FALSE "APPLE" FALSE)
 option(OGRE_BUILD_RENDERSYSTEM_VULKAN "Build Vulkan RenderSystem" FALSE)
@@ -349,20 +351,20 @@ cmake_dependent_option(OGRE_BUILD_LIBS_AS_FRAMEWORKS "Build frameworks for libra
 cmake_dependent_option(OGRE_BUILD_TESTS "Build the unit tests & PlayPen" FALSE "OGRE_BUILD_COMPONENT_BITES" FALSE)
 option(OGRE_CONFIG_DOUBLE "Use doubles instead of floats in Ogre" FALSE)
 option(OGRE_CONFIG_NODE_INHERIT_TRANSFORM "Tells the node whether it should inherit full transform from it's parent node or derived position, orientation and scale" FALSE)
-set(OGRE_CONFIG_THREADS "3" CACHE STRING 
-	"Enable Ogre thread safety support for multithreading. Possible values:
-	0 - no thread safety. DefaultWorkQueue is not threaded.
-	1 - background resource preparation and loading is thread safe. Threaded DefaultWorkQueue. [DEPRECATED]
-	2 - only background resource preparation is thread safe. Threaded DefaultWorkQueue. [DEPRECATED]
-	3 - no thread safety. Threaded DefaultWorkQueue."
+set(OGRE_CONFIG_THREADS "3" CACHE STRING
+ "Enable Ogre thread safety support for multithreading. Possible values:
+ 0 - no thread safety. DefaultWorkQueue is not threaded.
+ 1 - background resource preparation and loading is thread safe. Threaded DefaultWorkQueue. [DEPRECATED]
+ 2 - only background resource preparation is thread safe. Threaded DefaultWorkQueue. [DEPRECATED]
+ 3 - no thread safety. Threaded DefaultWorkQueue."
 )
 set_property(CACHE OGRE_CONFIG_THREADS PROPERTY STRINGS 0 1 2 3)
 set(OGRE_CONFIG_THREAD_PROVIDER "std" CACHE STRING
-	"Select the library to use for thread support. Possible values:
-	boost - Boost thread library. [DEPRECATED]
-	poco  - Poco thread library. [DEPRECATED]
-	tbb   - ThreadingBuildingBlocks library. [DEPRECATED]
-	std   - STL thread library (requires compiler support)."
+ "Select the library to use for thread support. Possible values:
+ boost - Boost thread library. [DEPRECATED]
+ poco  - Poco thread library. [DEPRECATED]
+ tbb   - ThreadingBuildingBlocks library. [DEPRECATED]
+ std   - STL thread library (requires compiler support)."
 )
 set_property(CACHE OGRE_CONFIG_THREAD_PROVIDER PROPERTY STRINGS boost poco tbb std)
 cmake_dependent_option(OGRE_BUILD_PLUGIN_FREEIMAGE "Build FreeImage codec." TRUE "FreeImage_FOUND" FALSE)
@@ -394,12 +396,12 @@ set(OGRE_BIN_DIRECTORY "bin" CACHE STRING "Install path for binaries")
 
 cmake_dependent_option(OGRE_INSTALL_VSPROPS "Install Visual Studio Property Page." FALSE "MSVC" FALSE)
 if (OGRE_INSTALL_VSPROPS)
-  configure_file(${OGRE_TEMPLATES_DIR}/OGRE.props.in ${PROJECT_BINARY_DIR}/OGRE.props)
-  install(FILES ${PROJECT_BINARY_DIR}/OGRE.props DESTINATION "${CMAKE_INSTALL_PREFIX}")
+    configure_file(${OGRE_TEMPLATES_DIR}/OGRE.props.in ${PROJECT_BINARY_DIR}/OGRE.props)
+    install(FILES ${PROJECT_BINARY_DIR}/OGRE.props DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif ()
 
 if (APPLE_IOS AND NOT OGRE_GLES2_USE_ANGLE)
-  set(CMAKE_EXE_LINKER_FLAGS "-framework OpenGLES ${CMAKE_EXE_LINKER_FLAGS}")
+    set(CMAKE_EXE_LINKER_FLAGS "-framework OpenGLES ${CMAKE_EXE_LINKER_FLAGS}")
 endif ()
 
 # provide option to install dependencies
@@ -411,7 +413,7 @@ include(PrepareThreadingOptions)
 # Enable project folders by default if the IDE supportes them
 # Hide option from other compilers.
 if (MSVC OR CMAKE_GENERATOR MATCHES Xcode)
-	option(OGRE_PROJECT_FOLDERS "Organize project into project folders." TRUE)
+    option(OGRE_PROJECT_FOLDERS "Organize project into project folders." TRUE)
 endif ()
 
 # hide advanced options
@@ -448,7 +450,7 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 # disable way too common compiler warnings on project level
 ###################################################################
 if(MSVC)
-	add_definitions( /wd4251 /wd4275 )
+    add_definitions( /wd4251 /wd4275 )
 endif()
 
 ##################################################################
@@ -475,10 +477,10 @@ add_subdirectory(Components)
 
 # Setup tests (before samples so that PlayPen is included in browser)
 if (OGRE_BUILD_TESTS)
-  # enable CTest
-  ENABLE_TESTING()
-  INCLUDE(CTest)
-  add_subdirectory(Tests)
+    # enable CTest
+    ENABLE_TESTING()
+    INCLUDE(CTest)
+    add_subdirectory(Tests)
 endif ()
 
 # Setup samples
@@ -486,12 +488,12 @@ add_subdirectory(Samples)
 
 # Setup command-line tools
 if (OGRE_BUILD_TOOLS)
-  add_subdirectory(Tools)
+    add_subdirectory(Tools)
 endif ()
 
 # Setup XSIExporter
 if (OGRE_BUILD_XSIEXPORTER)
-  add_subdirectory(Tools/XSIExport)
+    add_subdirectory(Tools/XSIExport)
 endif ()
 
 # Install documentation
@@ -501,7 +503,7 @@ add_subdirectory(Docs)
 install(DIRECTORY Media/Main DESTINATION "${OGRE_MEDIA_PATH}/")
 install(DIRECTORY Media/RTShaderLib DESTINATION "${OGRE_MEDIA_PATH}/")
 if (OGRE_INSTALL_SAMPLES)
-  install(DIRECTORY Samples/Media/ DESTINATION ${OGRE_MEDIA_PATH})
+    install(DIRECTORY Samples/Media/ DESTINATION ${OGRE_MEDIA_PATH})
 endif ()
 
 # Provide CPack packaging target
