@@ -60,6 +60,7 @@ namespace Ogre {
         , mStencilBufferBitDepth(8)
         , mConstantFloatCount{}
         , mNumMultiRenderTargets(1)
+        , mMaxTextureResolution2D(1024)
         , mNonPOW2TexturesLimited(false)
         , mMaxSupportedAnisotropy(0)
         , mGeometryProgramNumOutputVertices(0)
@@ -281,7 +282,7 @@ namespace Ogre {
         }
 
         return ret;
-        
+
     }
     //---------------------------------------------------------------------
     const String& RenderSystemCapabilities::vendorToString(GPUVendor v)

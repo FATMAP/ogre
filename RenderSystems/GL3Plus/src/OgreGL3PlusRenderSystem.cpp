@@ -331,6 +331,10 @@ namespace Ogre {
         // Check for hardware occlusion support
         rsc->setCapability(RSC_HWOCCLUSION);
 
+        GLint maxRes2d;
+        OGRE_CHECK_GL_ERROR(glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxRes2d));
+        rsc->setMaximumResolution2D(static_cast<ushort>(maxRes2d));
+
         // Point size
         GLfloat psRange[2] = {0.0, 0.0};
         OGRE_CHECK_GL_ERROR(glGetFloatv(GL_POINT_SIZE_RANGE, psRange));
@@ -1323,7 +1327,7 @@ namespace Ogre {
                     fbo->notifyContextDestroyed(context);
             }
         }
-        
+
         if (mCurrentContext == context)
         {
             // Change the context to something else so that a valid context

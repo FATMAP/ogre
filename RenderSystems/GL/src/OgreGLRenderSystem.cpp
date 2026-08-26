@@ -659,6 +659,10 @@ namespace Ogre {
             rsc->setCapability(RSC_PBUFFER);
         }
 
+        GLint maxRes2d;
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxRes2d);
+        rsc->setMaximumResolution2D(static_cast<ushort>(maxRes2d));
+
         // Point size
         float ps;
         glGetFloatv(GL_POINT_SIZE_MAX, &ps);
@@ -1125,7 +1129,7 @@ namespace Ogre {
         OgreAssert(pWin, "unknown RenderWindow name");
 
         GLContext *windowContext = dynamic_cast<GLRenderTarget*>(pWin)->getContext();
-    
+
         //1 Window <-> 1 Context, should be always true
         assert( windowContext );
 
@@ -1869,14 +1873,14 @@ namespace Ogre {
                 // Back
                 glStencilMaskSeparate(GL_BACK, state.writeMask);
                 glStencilFuncSeparate(GL_BACK, compareOp, state.referenceValue, state.compareMask);
-                glStencilOpSeparate(GL_BACK, 
+                glStencilOpSeparate(GL_BACK,
                     convertStencilOp(state.stencilFailOp, !flip),
                     convertStencilOp(state.depthFailOp, !flip),
                     convertStencilOp(state.depthStencilPassOp, !flip));
                 // Front
                 glStencilMaskSeparate(GL_FRONT, state.writeMask);
                 glStencilFuncSeparate(GL_FRONT, compareOp, state.referenceValue, state.compareMask);
-                glStencilOpSeparate(GL_FRONT, 
+                glStencilOpSeparate(GL_FRONT,
                     convertStencilOp(state.stencilFailOp, flip),
                     convertStencilOp(state.depthFailOp, flip),
                     convertStencilOp(state.depthStencilPassOp, flip));
@@ -2293,7 +2297,7 @@ namespace Ogre {
         // only valid up to GL_MAX_TEXTURE_UNITS, which is recorded in mFixedFunctionTextureUnits
         if (multitexturing)
         {
-            unsigned short mNumEnabledTextures = std::max(std::min((unsigned short)mDisabledTexUnitsFrom, mFixedFunctionTextureUnits), (unsigned short)(mMaxBuiltInTextureAttribIndex + 1));		
+            unsigned short mNumEnabledTextures = std::max(std::min((unsigned short)mDisabledTexUnitsFrom, mFixedFunctionTextureUnits), (unsigned short)(mMaxBuiltInTextureAttribIndex + 1));
             for (unsigned short i = 0; i < mNumEnabledTextures; i++)
             {
                 // No need to disable for texture units that weren't used
@@ -2619,7 +2623,7 @@ namespace Ogre {
             {
                 mStateCacheManager->setEnabled(GL_MULTISAMPLE_ARB, true);
                 LogManager::getSingleton().logMessage("Using FSAA from GL_ARB_multisample extension.");
-            }            
+            }
         }
 
 		if (checkExtension("GL_ARB_seamless_cube_map"))
@@ -2785,7 +2789,7 @@ namespace Ogre {
         void* pBufferData = 0;
         const GLHardwareBuffer* hwGlBuffer = vertexBuffer->_getImpl<GLHardwareBuffer>();
 
-        mStateCacheManager->bindGLBuffer(GL_ARRAY_BUFFER_ARB, 
+        mStateCacheManager->bindGLBuffer(GL_ARRAY_BUFFER_ARB,
                         hwGlBuffer->getGLBufferId());
         pBufferData = VBO_BUFFER_OFFSET(elem.getOffset());
 
@@ -2921,7 +2925,7 @@ namespace Ogre {
             };
         } // isCustomAttrib
     }
-	
+
 	//---------------------------------------------------------------------
 #if OGRE_NO_QUAD_BUFFER_STEREO == 0
 	bool GLRenderSystem::setDrawBuffer(ColourBufferType colourBuffer)
@@ -2946,12 +2950,12 @@ namespace Ogre {
 		// Check for any errors
 		GLenum error = glGetError();
 		if (result && GL_NO_ERROR != error)
-		{		
+		{
 			const char* errorCode = glErrorToString(error);
-			String errorString = "GLRenderSystem::setDrawBuffer(" 
+			String errorString = "GLRenderSystem::setDrawBuffer("
 				+ Ogre::StringConverter::toString(colourBuffer) + "): " + errorCode;
 
-			Ogre::LogManager::getSingleton().logMessage(errorString);			
+			Ogre::LogManager::getSingleton().logMessage(errorString);
 			result = false;
 		}
 
