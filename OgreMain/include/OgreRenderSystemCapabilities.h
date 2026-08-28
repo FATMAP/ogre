@@ -48,7 +48,7 @@ THE SOFTWARE.
 #define CAPS_CATEGORY_MASK (((1 << CAPS_CATEGORY_SIZE) - 1) << OGRE_CAPS_BITSHIFT)
 #define OGRE_CAPS_VALUE(cat, val) ((cat << OGRE_CAPS_BITSHIFT) | (1 << val))
 
-namespace Ogre 
+namespace Ogre
 {
     /** \addtogroup Core
     *  @{
@@ -211,14 +211,14 @@ namespace Ogre
 
     /// DriverVersion is used by RenderSystemCapabilities and both GL and D3D9
     /// to store the version of the current GPU driver
-    struct _OgreExport DriverVersion 
+    struct _OgreExport DriverVersion
     {
         int major;
         int minor;
         int release;
         int build;
 
-        DriverVersion() 
+        DriverVersion()
         {
             major = minor = release = build = 0;
         }
@@ -259,7 +259,7 @@ namespace Ogre
         typedef std::set<String> ShaderProfiles;
     private:
         /// This is used to build a database of RSC's
-        /// if a RSC with same name, but newer version is introduced, the older one 
+        /// if a RSC with same name, but newer version is introduced, the older one
         /// will be removed
         DriverVersion mDriverVersion;
         /// GPU Vendor
@@ -285,6 +285,8 @@ namespace Ogre
         ushort mConstantFloatCount[GPT_COUNT];
         /// The number of simultaneous render targets supported
         ushort mNumMultiRenderTargets;
+        /// Maximum texture width/height for 2D textures
+        ushort mMaxTextureResolution2D;
         /// The maximum point size
         Real mMaxPointSize;
         /// Are non-POW2 textures feature-limited?
@@ -301,7 +303,7 @@ namespace Ogre
 
         /// The number of vertex attributes available
         ushort mNumVertexAttributes;
-    public: 
+    public:
         RenderSystemCapabilities ();
 
         /** Set the driver version. */
@@ -348,15 +350,15 @@ namespace Ogre
         {
             if (mDriverVersion.major < v.major)
                 return true;
-            else if (mDriverVersion.major == v.major && 
+            else if (mDriverVersion.major == v.major &&
                 mDriverVersion.minor < v.minor)
                 return true;
-            else if (mDriverVersion.major == v.major && 
-                mDriverVersion.minor == v.minor && 
+            else if (mDriverVersion.major == v.major &&
+                mDriverVersion.minor == v.minor &&
                 mDriverVersion.release < v.release)
                 return true;
-            else if (mDriverVersion.major == v.major && 
-                mDriverVersion.minor == v.minor && 
+            else if (mDriverVersion.major == v.major &&
+                mDriverVersion.minor == v.minor &&
                 mDriverVersion.release == v.release &&
                 mDriverVersion.build < v.build)
                 return true;
@@ -394,12 +396,12 @@ namespace Ogre
         supports.
 
         For use in rendering, this determines how many texture units the
-        are available for multitexturing (i.e. rendering multiple 
-        textures in a single pass). Where a Material has multiple 
-        texture layers, it will try to use multitexturing where 
+        are available for multitexturing (i.e. rendering multiple
+        textures in a single pass). Where a Material has multiple
+        texture layers, it will try to use multitexturing where
         available, and where it is not available, will perform multipass
         rendering to achieve the same effect. This property only applies
-        to the fixed-function pipeline, the number available to the 
+        to the fixed-function pipeline, the number available to the
         programmable pipeline depends on the shader model in use.
         */
         ushort getNumTextureUnits(void) const
@@ -431,8 +433,8 @@ namespace Ogre
 
         /** Adds a capability flag
         */
-        void setCapability(const Capabilities c) 
-        { 
+        void setCapability(const Capabilities c)
+        {
             int index = (CAPS_CATEGORY_MASK & c) >> OGRE_CAPS_BITSHIFT;
             // zero out the index from the stored capability
             mCapabilities[index] |= (c & ~CAPS_CATEGORY_MASK);
@@ -440,8 +442,8 @@ namespace Ogre
 
         /** Remove a capability flag
         */
-        void unsetCapability(const Capabilities c) 
-        { 
+        void unsetCapability(const Capabilities c)
+        {
             int index = (CAPS_CATEGORY_MASK & c) >> OGRE_CAPS_BITSHIFT;
             // zero out the index from the stored capability
             mCapabilities[index] &= (~c | CAPS_CATEGORY_MASK);
@@ -515,6 +517,17 @@ namespace Ogre
         void setFragmentProgramConstantFloatCount(ushort c)
         {
             mConstantFloatCount[GPT_FRAGMENT_PROGRAM] = c;
+        }
+
+        /// Maximum resolution 2D (width or height)
+        void setMaximumResolution2D(ushort res2d)
+        {
+            mMaxTextureResolution2D = res2d;
+        }
+        /// Maximum resolution 2D (width or height)
+        ushort getMaximumResolution2D(void) const
+        {
+            return mMaxTextureResolution2D;
         }
 
         /// Maximum point screen size in pixels
@@ -634,4 +647,3 @@ namespace Ogre
 #include "OgreHeaderSuffix.h"
 
 #endif // __RenderSystemCapabilities__
-

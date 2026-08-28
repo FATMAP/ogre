@@ -172,9 +172,9 @@ namespace Ogre {
 #if OGRE_PLATFORM == OGRE_PLATFORM_ANDROID || OGRE_PLATFORM == OGRE_PLATFORM_EMSCRIPTEN
         mResourceManager = OGRE_NEW GLES2ManagedResourceManager();
 #endif
-        
+
         mGLSupport = getGLSupport(GLNativeSupport::CONTEXT_ES);
-        
+
 #if (!(OGRE_PLATFORM == OGRE_PLATFORM_ANDROID || OGRE_PLATFORM == OGRE_PLATFORM_WIN32 || \
         (OGRE_PLATFORM == OGRE_PLATFORM_APPLE_IOS && OGRE_GLES2_USE_ANGLE == 0)))
 
@@ -303,7 +303,7 @@ namespace Ogre {
                checkExtension("GL_IMG_texture_compression_pvrtc2") ||
                checkExtension("WEBGL_compressed_texture_pvrtc"))
                 rsc->setCapability(RSC_TEXTURE_COMPRESSION_PVRTC);
-                
+
             if((checkExtension("GL_EXT_texture_compression_dxt1") &&
                checkExtension("GL_EXT_texture_compression_s3tc")) ||
                checkExtension("WEBGL_compressed_texture_s3tc"))
@@ -351,7 +351,11 @@ namespace Ogre {
 
         // Stencil wrapping
         rsc->setCapability(RSC_STENCIL_WRAP);
-        
+
+        GLint maxRes2d;
+        OGRE_CHECK_GL_ERROR(glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxRes2d));
+        rsc->setMaximumResolution2D(static_cast<ushort>(maxRes2d));
+
         // Point size
         GLfloat psRange[2] = {0.0, 0.0};
         OGRE_CHECK_GL_ERROR(glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, psRange));
@@ -360,7 +364,7 @@ namespace Ogre {
         // Point sprites
         rsc->setCapability(RSC_POINT_SPRITES);
         rsc->setCapability(RSC_POINT_EXTENDED_PARAMETERS);
-        
+
         // GLSL ES is always supported in GL ES 2
         rsc->addShaderProfile("glsles");
         if (getNativeShadingLanguageVersion() >= 320)
@@ -428,7 +432,7 @@ namespace Ogre {
         // Alpha to coverage always 'supported' when MSAA is available
         // although card may ignore it if it doesn't specifically support A2C
         rsc->setCapability(RSC_ALPHA_TO_COVERAGE);
-        
+
         // No point sprites, so no size
         rsc->setMaxPointSize(0.f);
 
@@ -680,39 +684,39 @@ namespace Ogre {
     void GLES2RenderSystem::_destroyDepthBuffer(RenderTarget* pWin)
     {
         GLContext *windowContext = dynamic_cast<GLRenderTarget*>(pWin)->getContext();
-        
+
         // 1 Window <-> 1 Context, should be always true
         assert( windowContext );
-        
+
         bool bFound = false;
         // Find the depth buffer from this window and remove it.
         DepthBufferMap::iterator itMap = mDepthBufferPool.begin();
         DepthBufferMap::iterator enMap = mDepthBufferPool.end();
-        
+
         while( itMap != enMap && !bFound )
         {
             DepthBufferVec::iterator itor = itMap->second.begin();
             DepthBufferVec::iterator end  = itMap->second.end();
-            
+
             while( itor != end )
             {
                 // A DepthBuffer with no depth & stencil pointers is a dummy one,
                 // look for the one that matches the same GL context
                 auto depthBuffer = static_cast<GLDepthBufferCommon*>(*itor);
                 GLContext *glContext = depthBuffer->getGLContext();
-                
+
                 if( glContext == windowContext &&
                    (depthBuffer->getDepthBuffer() || depthBuffer->getStencilBuffer()) )
                 {
                     bFound = true;
-                    
+
                     delete *itor;
                     itMap->second.erase( itor );
                     break;
                 }
                 ++itor;
             }
-            
+
             ++itMap;
         }
     }
@@ -870,11 +874,11 @@ namespace Ogre {
         else if (vp != mActiveViewport || vp->_isUpdated())
         {
             RenderTarget* target;
-            
+
             target = vp->getTarget();
             _setRenderTarget(target);
             mActiveViewport = vp;
-            
+
             // Calculate the "lower-left" corner of the viewport
             Rect vpRect = vp->getActualDimensions();
             if (!target->requiresTextureFlipping())
@@ -1012,7 +1016,7 @@ namespace Ogre {
     {
         if(hasMinGLVersion(3, 0) || checkExtension("GL_EXT_occlusion_query_boolean"))
         {
-            GLES2HardwareOcclusionQuery* ret = new GLES2HardwareOcclusionQuery(); 
+            GLES2HardwareOcclusionQuery* ret = new GLES2HardwareOcclusionQuery();
             mHwOcclusionQueries.push_back(ret);
             return ret;
         }
@@ -1303,7 +1307,7 @@ namespace Ogre {
             mProgramManager->setActiveShader(GPT_VERTEX_PROGRAM, NULL);
         if (mCurrentFragmentProgram)
             mProgramManager->setActiveShader(GPT_FRAGMENT_PROGRAM, NULL);
-        
+
         // Disable textures
         _disableTextureUnitsFrom(0);
 
@@ -1335,7 +1339,7 @@ namespace Ogre {
             mProgramManager->setActiveShader(GPT_VERTEX_PROGRAM, mCurrentVertexProgram);
         if (mCurrentFragmentProgram)
             mProgramManager->setActiveShader(GPT_FRAGMENT_PROGRAM, mCurrentFragmentProgram);
-        
+
         // Must reset depth/colour write mask to according with user desired, otherwise,
         // clearFrameBuffer would be wrong because the value we are recorded may be
         // difference with the really state stored in GL context.
@@ -1351,7 +1355,7 @@ namespace Ogre {
     {
         if(HardwareBufferManager::getSingletonPtr())
             static_cast<GLES2HardwareBufferManager*>(HardwareBufferManager::getSingletonPtr())->notifyContextDestroyed(context);
-        
+
         for(RenderTargetMap::iterator it = mRenderTargets.begin(); it!=mRenderTargets.end(); ++it)
         {
             if(auto target = dynamic_cast<GLRenderTarget*>(it->second))
@@ -1360,7 +1364,7 @@ namespace Ogre {
                     fbo->notifyContextDestroyed(context);
             }
         }
-        
+
         if (mCurrentContext == context)
         {
             // Change the context to something else so that a valid context
@@ -1396,7 +1400,7 @@ namespace Ogre {
         else
             OGRE_CHECK_GL_ERROR(glDeleteVertexArraysOES(1, &vao));
     }
-    
+
     void GLES2RenderSystem::_destroyFbo(GLContext* context, uint32 fbo)
     {
         if(context != mCurrentContext)
@@ -1548,11 +1552,11 @@ namespace Ogre {
     {
         if (!prg)
         {
-            OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, 
+            OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR,
                         "Null program bound.",
                         "GLES2RenderSystem::bindGpuProgram");
         }
-        
+
         GLSLESProgram* glprg = static_cast<GLSLESProgram*>(prg);
 
         switch (glprg->getType())
@@ -1560,14 +1564,14 @@ namespace Ogre {
             case GPT_VERTEX_PROGRAM:
                 mCurrentVertexProgram = glprg;
                 break;
-                
+
             case GPT_FRAGMENT_PROGRAM:
                 mCurrentFragmentProgram = glprg;
                 break;
             default:
                 break;
         }
-        
+
         // Bind the program
         mProgramManager->setActiveShader(glprg->getType(), glprg);
 
@@ -1647,11 +1651,11 @@ namespace Ogre {
         LogManager::getSingleton().logMessage("********************************************");
         LogManager::getSingleton().logMessage("*** OpenGL ES 2.x Reset Renderer Started ***");
         LogManager::getSingleton().logMessage("********************************************");
-                
+
         initialiseContext(win);
-        
+
         static_cast<GLES2FBOManager*>(mRTTManager)->_reload();
-        
+
         _destroyDepthBuffer(win);
 
         auto depthBuffer =
@@ -1659,14 +1663,14 @@ namespace Ogre {
 
         mDepthBufferPool[depthBuffer->getPoolId()].push_back( depthBuffer );
         win->attachDepthBuffer( depthBuffer );
-        
+
         GLES2RenderSystem::mResourceManager->notifyOnContextReset();
-        
+
         mStateCacheManager->clearCache();
         _setViewport(NULL);
         _setRenderTarget(win);
     }
-    
+
     GLES2ManagedResourceManager* GLES2RenderSystem::getResourceManager()
     {
         return GLES2RenderSystem::mResourceManager;
