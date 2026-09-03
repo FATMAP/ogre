@@ -96,7 +96,7 @@ namespace Ogre {
         mActive = false;
 
         if (!mIsExternal)
-        {        
+        {
             SAFE_ARC_RELEASE(mWindow);
             mWindow = nil;
         }
@@ -113,7 +113,7 @@ namespace Ogre {
             [mWindow setHidden:hidden];
         }
     }
-    
+
 	void EAGL2Window::resize(unsigned int widthPt, unsigned int heightPt)
 	{
         if(!mWindow) return;
@@ -124,15 +124,15 @@ namespace Ogre {
         // Check if the window size really changed
         if(mWidth == widthPx && mHeight == heightPx)
             return;
-        
+
         // Destroy and recreate the framebuffer with new dimensions
         EAGLContextGuard ctx_guard(mContext->getContext());
-        
+
         mContext->destroyFramebuffer();
-        
+
         mWidth = widthPx;
         mHeight = heightPx;
-        
+
         mContext->createFramebuffer();
 
         for (ViewportList::iterator it = mViewportList.begin(); it != mViewportList.end(); ++it)
@@ -140,7 +140,7 @@ namespace Ogre {
             (*it).second->_updateDimensions();
         }
 	}
-    
+
 	void EAGL2Window::windowMovedOrResized()
 	{
         CGRect frame = [mView frame];
@@ -148,10 +148,10 @@ namespace Ogre {
         CGFloat height = _getPixelFromPoint(frame.size.height);
         CGFloat left   = _getPixelFromPoint(frame.origin.x);
         CGFloat top    = _getPixelFromPoint(frame.origin.y);
-        
+
         if(mWidth == width && mHeight == height && mLeft == left && mTop == top)
             return;
-        
+
         EAGLContextGuard ctx_guard(mContext->getContext());
         mContext->destroyFramebuffer();
 
@@ -175,15 +175,15 @@ namespace Ogre {
         // to assume that external handles are either not being used or are invalid and
         // we can create our own.
         SAFE_ARC_AUTORELEASE_POOL_START()
-        
+
         // Set us up with an external window, or create our own.
         if(!mIsExternal)
         {
             mWindow = [[UIWindow alloc] initWithFrame:CGRectMake(0, 0, widthPt, heightPt)];
         }
-        
+
         OgreAssert(mWindow || mUsingExternalViewController, "EAGL2Window: Failed to obtain required native window");
-        
+
         // Set up the view
         if(!mUsingExternalView)
         {
@@ -194,13 +194,13 @@ namespace Ogre {
             // See Apple's documentation on supporting high resolution devices for more info
             mView.contentScaleFactor = mContentScalingFactor;
         }
-    
+
         OgreAssert(mView != nil, "EAGL2Window: Failed to create view");
-        
+
         [mView setMWindowName:mName];
 
         OgreAssert([mView.layer isKindOfClass:[CAEAGLLayer class]], "EAGL2Window: View's Core Animation layer is not a CAEAGLLayer. This is a requirement for using OpenGL ES for drawing.");
-        
+
         CAEAGLLayer *eaglLayer = (CAEAGLLayer *)mView.layer;
         OgreAssert(eaglLayer != nil, "EAGL2Window: Failed to retrieve a pointer to the view's Core Animation layer");
 
@@ -220,9 +220,9 @@ namespace Ogre {
         {
             mViewController = [[EAGL2ViewController alloc] init];
         }
-        
+
         OgreAssert(mViewController != nil, "EAGL2Window: Failed to create view controller");
-        
+
         if(mViewController.view != mView)
             mViewController.view = mView;
 
@@ -238,7 +238,7 @@ namespace Ogre {
             if(EAGLES2Context* mainContext = (EAGLES2Context*)rs->_getMainContext())
                 group = mainContext->getContext().sharegroup;
         }
-        
+
         mContext = mGLSupport->createNewContext(eaglLayer, group);
 
         mContext->mIsMultiSampleSupported = rs->hasMinGLVersion(3, 0);
@@ -252,30 +252,30 @@ namespace Ogre {
             mWindow.rootViewController = mViewController;
             [mWindow makeKeyAndVisible];
         }
-        
+
         if(!mUsingExternalView)
             SAFE_ARC_RELEASE(mView);
-        
+
         // Obtain effective view size and scale
         CGSize sz = mView.frame.size;
         mContentScalingFactor = mView.contentScaleFactor;
         mWidth = _getPixelFromPoint(sz.width);
         mHeight = _getPixelFromPoint(sz.height);
-        
+
         mContext->createFramebuffer();
-        
+
         // If content scaling is supported, the window size will be smaller than the GL pixel buffer
         // used to render.  Report the buffer size for reference.
         StringStream ss;
-            
+
         ss  << "iOS: Window created " << widthPt << " x " << heightPt
             << " with backing store size " << mContext->mBackingWidth << " x " << mContext->mBackingHeight
             << " using content scaling factor " << std::fixed << std::setprecision(1) << getViewPointToPixelScale();
         LogManager::getSingleton().logMessage(ss.str());
-        
+
         SAFE_ARC_AUTORELEASE_POOL_END()
     }
-    
+
     void EAGL2Window::create(const String& name, uint widthPt, uint heightPt,
                                 bool fullScreen, const NameValuePairList *miscParams)
     {
@@ -283,10 +283,10 @@ namespace Ogre {
         bool vsync = false;
 		int left = 0;
 		int top  = 0;
-        
+
         mIsFullScreen = fullScreen;
         mName = name;
-        
+
         if (miscParams)
         {
             NameValuePairList::const_iterator opt;
@@ -297,7 +297,7 @@ namespace Ogre {
             {
                 mFSAA = StringConverter::parseUnsignedInt(opt->second);
             }
-            
+
             if ((opt = miscParams->find("displayFrequency")) != end)
             {
                 frequency = (short)StringConverter::parseInt(opt->second);
@@ -307,22 +307,22 @@ namespace Ogre {
             {
                 mContentScalingFactor = StringConverter::parseReal(opt->second);
             }
-            
+
             if ((opt = miscParams->find("vsync")) != end)
             {
                 vsync = StringConverter::parseBool(opt->second);
             }
-            
+
             if ((opt = miscParams->find("left")) != end)
             {
                 left = StringConverter::parseInt(opt->second);
             }
-            
+
             if ((opt = miscParams->find("top")) != end)
             {
                 top = StringConverter::parseInt(opt->second);
             }
-            
+
             if ((opt = miscParams->find("title")) != end)
             {
                 mName = opt->second;
@@ -334,14 +334,14 @@ namespace Ogre {
                 mIsExternal = true;
                 LogManager::getSingleton().logMessage("iOS: Using an external window handle");
             }
-        
+
             if ((opt = miscParams->find("externalViewHandle")) != end)
             {
                 mView = (__bridge EAGL2View *)(void*)StringConverter::parseSizeT(opt->second);
                 mUsingExternalView = true;
                 LogManager::getSingleton().logMessage("iOS: Using an external view handle");
             }
-        
+
             if ((opt = miscParams->find("externalViewControllerHandle")) != end)
             {
                 mViewController = (__bridge EAGL2ViewController *)(void*)StringConverter::parseSizeT(opt->second);
@@ -351,7 +351,7 @@ namespace Ogre {
                 LogManager::getSingleton().logMessage("iOS: Using an external view controller handle");
             }
 		}
-        
+
         createNativeWindow(widthPt, heightPt, miscParams);
 
         left = top = 0;
@@ -373,7 +373,7 @@ namespace Ogre {
         unsigned int attachmentCount = 0;
         GLenum attachments[3];
         unsigned int buffers = mContext->mDiscardBuffers;
-        
+
         if((buffers & FBT_COLOUR) && mContext->mIsMultiSampleSupported && mContext->mNumSamples > 0)
         {
             attachments[attachmentCount++] = GL_COLOR_ATTACHMENT0;
@@ -432,7 +432,7 @@ namespace Ogre {
             *(void**)(pData) = (__bridge void*)mWindow;
 			return;
 		}
-        
+
 		if( name == "VIEW" )
 		{
             *(void**)(pData) = (__bridge void*)mViewController.view;
@@ -446,18 +446,13 @@ namespace Ogre {
 		}
 	}
 
-    void EAGL2Window::copyContentsToMemory(const Box& src, const PixelBox &dst, FrameBuffer buffer)
+    void EAGL2Window::copyContentsToMemory(const Box& src, const PixelBox &dst, FrameBuffer /*buffer*/)
     {
         if(src.right > mWidth || src.bottom > mHeight || src.front != 0 || src.back != 1
         || dst.getWidth() != src.getWidth() || dst.getHeight() != src.getHeight() || dst.getDepth() != 1
         || dst.getWidth() != dst.rowPitch /* GLES2 does not support GL_PACK_ROW_LENGTH, nor iOS supports GL_NV_pack_subimage */)
 		{
 			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Invalid box.");
-		}
-
-		if (buffer == FB_AUTO)
-		{
-			buffer = mIsFullScreen ? FB_FRONT : FB_BACK;
 		}
 
 		// Switch context if different from current one
@@ -469,8 +464,6 @@ namespace Ogre {
         // The following code is adapted from Apple Technical Q & A QA1704
         // http://developer.apple.com/library/ios/#qa/qa1704/_index.html
         NSInteger width = dst.getWidth(), height = dst.getHeight();
-        NSInteger dataLength = width * height * PixelUtil::getComponentCount(dst.format);
-        GLubyte *data = (GLubyte*)malloc(dataLength * sizeof(GLubyte));
         GLenum format = GLES2PixelUtil::getGLOriginFormat(dst.format);
         GLenum type = GLES2PixelUtil::getGLOriginDataType(dst.format);
 
@@ -478,55 +471,22 @@ namespace Ogre {
         GLuint sampleFramebuffer = 0;
         OGRE_CHECK_GL_ERROR(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &currentFBO));
         OGRE_CHECK_GL_ERROR(glGenFramebuffers(1, &sampleFramebuffer));
-        
+
         OGRE_CHECK_GL_ERROR(glBindFramebuffer(GL_READ_FRAMEBUFFER, sampleFramebuffer));
         OGRE_CHECK_GL_ERROR(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, currentFBO));
         OGRE_CHECK_GL_ERROR(glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST));
         OGRE_CHECK_GL_ERROR(glBindFramebuffer(GL_FRAMEBUFFER, currentFBO));
-        
+
         // Read pixel data from the framebuffer
         OGRE_CHECK_GL_ERROR(glPixelStorei(GL_PACK_ALIGNMENT, 1));
         OGRE_CHECK_GL_ERROR(glReadPixels((GLint)src.left, (GLint)(mHeight - src.bottom),
                                          (GLsizei)width, (GLsizei)height,
-                                         format, type, data));
+                                         format, type, dst.getTopLeftFrontPixelPtr()));
         OGRE_CHECK_GL_ERROR(glPixelStorei(GL_PACK_ALIGNMENT, 4));
-        
+
         OGRE_CHECK_GL_ERROR(glBindFramebuffer(GL_FRAMEBUFFER, currentFBO));
         OGRE_CHECK_GL_ERROR(glDeleteFramebuffers(1, &sampleFramebuffer));
 
-        // Create a CGImage with the pixel data
-        // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
-        // otherwise, use kCGImageAlphaPremultipliedLast
-        CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, data, dataLength, NULL);
-        CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-        CGImageRef iref = CGImageCreate(width, height, 8, PixelUtil::getNumElemBits(dst.format),
-                                        width * PixelUtil::getComponentCount(dst.format), colorspace,
-                                        kCGBitmapByteOrderDefault,
-                                        ref, NULL, YES, kCGRenderingIntentDefault);
-
-        // OpenGL ES measures data in PIXELS
-        // Create a graphics context with the target size measured in POINTS
-        NSInteger widthInPoints = 0, heightInPoints = 0;
-
-        // Set the scale parameter to your OpenGL ES view's contentScaleFactor
-        // so that you get a high-resolution snapshot when its value is greater than 1.0
-        CGFloat scale = mView.contentScaleFactor;
-        widthInPoints = width / scale;
-        heightInPoints = height / scale;
-        UIGraphicsBeginImageContextWithOptions(CGSizeMake(widthInPoints, heightInPoints), NO, scale);
-
-        CGContextRef context = UIGraphicsGetCurrentContext();
-        CGContextSetBlendMode(context, kCGBlendModeCopy);
-        CGContextDrawImage(context, CGRectMake(0.0, 0.0, widthInPoints, heightInPoints), iref);
-
-        // Retrieve the UIImage from the current context
-        memcpy(dst.data, CGBitmapContextGetData(context), CGBitmapContextGetBytesPerRow(context) * height); // TODO: support dst.rowPitch != dst.getWidth() case
-        UIGraphicsEndImageContext();
-
-        // Clean up
-        free(data);
-        CFRelease(ref);
-        CFRelease(colorspace);
-        CGImageRelease(iref);
+        PixelUtil::bulkPixelVerticalFlip(dst);
     }
 }
