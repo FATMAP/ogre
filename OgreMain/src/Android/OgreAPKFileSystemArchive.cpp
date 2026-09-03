@@ -66,6 +66,7 @@ namespace {
 		while((fileName = AAssetDir_getNextFileName(dir)) != NULL) {
 			mFilenames.push_back( String( fileName ) );
 		}
+		AAssetDir_close(dir);
 		mFiles.insert( std::make_pair( Folder, mFilenames ) );
 	}
 }
