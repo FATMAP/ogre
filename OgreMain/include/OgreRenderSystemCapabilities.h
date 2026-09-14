@@ -286,7 +286,7 @@ namespace Ogre
         /// The number of simultaneous render targets supported
         ushort mNumMultiRenderTargets;
         /// Maximum texture width/height for 2D textures
-        ushort mMaxTextureResolution2D;
+        uint32 mMaxTextureResolution2D;
         /// The maximum point size
         Real mMaxPointSize;
         /// Are non-POW2 textures feature-limited?
@@ -520,12 +520,12 @@ namespace Ogre
         }
 
         /// Maximum resolution 2D (width or height)
-        void setMaximumResolution2D(ushort res2d)
+        void setMaximumResolution2D(uint32 res2d)
         {
             mMaxTextureResolution2D = res2d;
         }
         /// Maximum resolution 2D (width or height)
-        ushort getMaximumResolution2D(void) const
+        uint32 getMaximumResolution2D(void) const
         {
             return mMaxTextureResolution2D;
         }

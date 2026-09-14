@@ -661,7 +661,7 @@ namespace Ogre {
 
         GLint maxRes2d;
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxRes2d);
-        rsc->setMaximumResolution2D(static_cast<ushort>(maxRes2d));
+        rsc->setMaximumResolution2D(static_cast<uint32>(maxRes2d));
 
         // Point size
         float ps;
