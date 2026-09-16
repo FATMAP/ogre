@@ -30,6 +30,12 @@ ImGuiOverlay::ImGuiOverlay() : Overlay("ImGuiOverlay")
     ImGuiIO& io = ImGui::GetIO();
 
     io.BackendPlatformName = "OGRE";
+#ifdef HAVE_FREETYPE
+    // ImGuiCore is shared with FatmapMobileSDK's WebGpu backend and built
+    // without IMGUI_ENABLE_FREETYPE, so opt into FreeType rendering here
+    // instead -- see build_dependencies/imgui/CMakeLists.txt.
+    io.Fonts->SetFontLoader(ImGuiFreeType::GetFontLoader());
+#endif
 }
 ImGuiOverlay::~ImGuiOverlay()
 {

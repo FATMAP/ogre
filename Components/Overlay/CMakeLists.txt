@@ -19,24 +19,18 @@ list(APPEND HEADER_FILES
 file(GLOB SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 if(OGRE_BUILD_COMPONENT_OVERLAY_IMGUI)
-  set(IMGUI_DIR "${PROJECT_BINARY_DIR}/imgui-1.89.7" CACHE PATH "")
-  if(NOT EXISTS ${IMGUI_DIR})
-    message(STATUS "Downloading imgui")
-    file(DOWNLOAD
-        https://github.com/ocornut/imgui/archive/v1.89.7.tar.gz
-        ${PROJECT_BINARY_DIR}/imgui.tar.gz)
-    execute_process(COMMAND ${CMAKE_COMMAND}
-        -E tar xf imgui.tar.gz WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+  # Link the prebuilt ImGuiCore (shared with FatmapMobileSDK's WebGpu render
+  # backend) instead of compiling our own copy -- see build_dependencies/imgui.
+  find_library(IMGUICORE_LIBRARY ImGuiCore)
+  find_path(IMGUICORE_INCLUDE_DIR imgui.h PATH_SUFFIXES imgui)
+  if(NOT IMGUICORE_LIBRARY OR NOT IMGUICORE_INCLUDE_DIR)
+    message(FATAL_ERROR "OGRE_BUILD_COMPONENT_OVERLAY_IMGUI requires the prebuilt ImGuiCore dependency")
   endif()
-  list(APPEND SOURCE_FILES
-    ${IMGUI_DIR}/imgui.cpp
-    ${IMGUI_DIR}/imgui_draw.cpp
-    ${IMGUI_DIR}/imgui_tables.cpp
-    ${IMGUI_DIR}/imgui_widgets.cpp
-    ${IMGUI_DIR}/imgui_demo.cpp)
   if(FREETYPE_FOUND)
-    set(IMGUI_ENABLE_FREETYPE TRUE)
-    list(APPEND SOURCE_FILES ${IMGUI_DIR}/misc/freetype/imgui_freetype.cpp)
+    # FreeType-based font rasterizer, opted into at runtime (OgreImGuiOverlay.cpp
+    # calls SetFontLoader) rather than via IMGUI_ENABLE_FREETYPE, which would
+    # require its own separately-compiled ImGuiCore -- see build_dependencies/imgui.
+    find_library(IMGUIFREETYPE_LIBRARY ImGuiFreetypeBackend REQUIRED)
   endif()
 else()
     list(REMOVE_ITEM SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/OgreImGuiOverlay.cpp")
@@ -63,35 +57,23 @@ elseif(UNIX)
 endif()
 
 if(OGRE_BUILD_COMPONENT_OVERLAY_IMGUI)
-  target_include_directories(OgreOverlay PUBLIC
-    PUBLIC "$<BUILD_INTERFACE:${IMGUI_DIR}>"
-    PRIVATE "$<BUILD_INTERFACE:${IMGUI_DIR}/misc/freetype>")
+  target_include_directories(OgreOverlay PUBLIC "$<BUILD_INTERFACE:${IMGUICORE_INCLUDE_DIR}>")
+  target_link_libraries(OgreOverlay PUBLIC ${IMGUICORE_LIBRARY})
 
-  if(UNIX)
-    set_source_files_properties(${IMGUI_DIR}/misc/freetype/imgui_freetype.cpp PROPERTIES
-      COMPILE_FLAGS "-Wno-missing-declarations")
-
-    set_source_files_properties(${IMGUI_DIR}/imgui_widgets.cpp PROPERTIES
-      COMPILE_FLAGS "-Wno-cast-qual")
-    set_source_files_properties(${IMGUI_DIR}/imgui_draw.cpp PROPERTIES
-      COMPILE_FLAGS "-Wno-cast-qual")
-    set_source_files_properties(${IMGUI_DIR}/imgui.cpp PROPERTIES
-      COMPILE_FLAGS "-Wno-cast-qual")
-    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-      set_property(SOURCE ${IMGUI_DIR}/misc/freetype/imgui_freetype.cpp
-        APPEND PROPERTY COMPILE_OPTIONS "-Wno-unknown-warning-option")
-    endif()
+  if(FREETYPE_FOUND)
+    target_link_libraries(OgreOverlay PRIVATE ${IMGUIFREETYPE_LIBRARY})
   endif()
 
   if(MINGW)
     target_link_libraries(OgreOverlay PRIVATE imm32)
   endif()
 
-  configure_file(${OGRE_TEMPLATES_DIR}/imconfig.h ${IMGUI_DIR}/imconfig.h)
-
   list(APPEND HEADER_FILES
-    ${IMGUI_DIR}/imgui.h
-    ${IMGUI_DIR}/imconfig.h)
+    ${IMGUICORE_INCLUDE_DIR}/imgui.h
+    ${IMGUICORE_INCLUDE_DIR}/imconfig.h)
+  if(FREETYPE_FOUND)
+    list(APPEND HEADER_FILES ${IMGUICORE_INCLUDE_DIR}/imgui_freetype.h)
+  endif()
 endif()
 
 generate_export_header(OgreOverlay 
