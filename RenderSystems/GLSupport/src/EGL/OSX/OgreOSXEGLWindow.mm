@@ -75,6 +75,19 @@ namespace Ogre {
 
     void OSXEGLWindow::resize(uint width, uint height)
     {
+        // The scale changes when the window moves to a display with a different density,
+        // as in CocoaWindow::windowMovedOrResized.
+        if (mView && mView.window)
+        {
+            mContentScalingFactor = mView.window.backingScaleFactor;
+
+            CAMetalLayer *metalLayer = (CAMetalLayer*)[mView layer];
+            if ([metalLayer isKindOfClass:[CAMetalLayer class]])
+            {
+                metalLayer.contentsScale = mContentScalingFactor;
+            }
+        }
+
         // Convert from points to pixels if needed
         width = std::max<long>(1, std::lround(width * mContentScalingFactor));
         height = std::max<long>(1, std::lround(height * mContentScalingFactor));
