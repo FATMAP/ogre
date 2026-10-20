@@ -369,6 +369,8 @@ namespace Ogre {
         private:
             /// Pass that was actually used at the grouping level
             const Pass* mUsedPass;
+            /// Pass last given to _setPass in the current collection
+            const Pass* mLastSetPass = nullptr;
         public:
             SceneMgrQueuedRenderableVisitor() 
                 :transparentShadowCastersMode(false) {}
