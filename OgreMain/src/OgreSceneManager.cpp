@@ -1406,7 +1406,13 @@ void SceneManager::SceneMgrQueuedRenderableVisitor::visit(RenderablePass* rp)
     // Give SM a chance to eliminate
     if (targetSceneMgr->validateRenderableForRendering(rp->pass, rp->renderable))
     {
-        mUsedPass = targetSceneMgr->_setPass(rp->pass);
+        // Neighbours in the sorted list often share a pass. Set it up once for the run, as the
+        // grouped visit above does for a whole group.
+        if (rp->pass != mLastSetPass)
+        {
+            mUsedPass = targetSceneMgr->_setPass(rp->pass);
+            mLastSetPass = rp->pass;
+        }
         OgreProfileBeginGPUEvent(mUsedPass->getParent()->getParent()->getName());
         targetSceneMgr->renderSingleObject(rp->renderable, mUsedPass, scissoring, 
             autoLights, manualLightList);
@@ -1423,6 +1429,8 @@ void SceneManager::SceneMgrQueuedRenderableVisitor::renderObjects(const QueuedRe
     manualLightList = _manualLightList;
     transparentShadowCastersMode = _transparentShadowCastersMode;
     scissoring = lightScissoringClipping;
+    // Other code sets passes between collections, so each one starts with a full setup.
+    mLastSetPass = nullptr;
     // Use visitor
     objs.acceptVisitor(this, om);
     transparentShadowCastersMode = false;
