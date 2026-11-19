@@ -35,14 +35,19 @@ THE SOFTWARE.
 #include "OgreDefaultHardwareBufferManager.h"
 
 namespace Ogre {
+    static bool needsShadowBuffer(uint32 usage, bool useShadowBuffer)
+    {
+        return useShadowBuffer || (HANDLE_CONTEXT_LOSS && !(usage & HardwareBuffer::HBU_DISCARDABLE));
+    }
+
     GLES2HardwareBuffer::GLES2HardwareBuffer(GLenum target, size_t sizeInBytes, uint32 usage, bool useShadowBuffer)
-        : HardwareBuffer(usage, useShadowBuffer || HANDLE_CONTEXT_LOSS), mTarget(target)
+        : HardwareBuffer(usage, needsShadowBuffer(usage, useShadowBuffer)), mTarget(target)
     {
         mSizeInBytes = sizeInBytes;
         mRenderSystem = static_cast<GLES2RenderSystem*>(Root::getSingleton().getRenderSystem());
         createBuffer();
 
-        if (useShadowBuffer || HANDLE_CONTEXT_LOSS)
+        if (needsShadowBuffer(usage, useShadowBuffer))
         {
             mShadowBuffer = std::make_unique<DefaultHardwareBuffer>(mSizeInBytes);
         }
@@ -214,6 +219,7 @@ namespace Ogre {
 
     GLenum GLES2HardwareBuffer::getGLUsage(unsigned int usage)
     {
+        usage &= ~HardwareBuffer::HBU_DISCARDABLE;
         return (usage == HBU_GPU_TO_CPU) ? GL_STATIC_READ
                                          : (usage == HBU_GPU_ONLY) ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW;
     }

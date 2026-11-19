@@ -60,7 +60,8 @@ namespace Ogre {
                                                       HardwareBuffer::Usage usage,
                                                       bool useShadowBuffer)
     {
-        if(!mRenderSystem->getCapabilities()->hasCapability(RSC_MAPBUFFER))
+        if(!mRenderSystem->getCapabilities()->hasCapability(RSC_MAPBUFFER) &&
+           !(usage & HardwareBuffer::HBU_DISCARDABLE))
             useShadowBuffer = true;
 
         auto impl = new GLES2HardwareBuffer(GL_ARRAY_BUFFER, vertexSize * numVerts, usage, useShadowBuffer);
@@ -77,7 +78,8 @@ namespace Ogre {
                                                                               HardwareBuffer::Usage usage,
                                                                               bool useShadowBuffer)
     {
-        if(!mRenderSystem->getCapabilities()->hasCapability(RSC_MAPBUFFER))
+        if(!mRenderSystem->getCapabilities()->hasCapability(RSC_MAPBUFFER) &&
+           !(usage & HardwareBuffer::HBU_DISCARDABLE))
             useShadowBuffer = true;
 
         auto indexSize = HardwareIndexBuffer::indexSize(itype);
